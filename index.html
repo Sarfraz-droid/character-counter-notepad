@@ -5,27 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimalist Notepad</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        textarea::-webkit-scrollbar {
+        textarea::-webkit-scrollbar,
+        #markdownPreview::-webkit-scrollbar {
             width: 8px;
         }
 
-        textarea::-webkit-scrollbar-track {
+        textarea::-webkit-scrollbar-track,
+        #markdownPreview::-webkit-scrollbar-track {
             background: #1f2937;
         }
 
-        textarea::-webkit-scrollbar-thumb {
+        textarea::-webkit-scrollbar-thumb,
+        #markdownPreview::-webkit-scrollbar-thumb {
             background: #4b5563;
             border-radius: 4px;
         }
 
-        textarea::-webkit-scrollbar-thumb:hover {
+        textarea::-webkit-scrollbar-thumb:hover,
+        #markdownPreview::-webkit-scrollbar-thumb:hover {
             background: #6b7280;
+        }
+
+        .tab-button {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #markdownPreview {
+            overflow-y: auto;
+        }
+
+        #markdownPreview h1 {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0.67em 0;
+        }
+
+        #markdownPreview h2 {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0.75em 0;
+        }
+
+        #markdownPreview h3 {
+            font-size: 1.17em;
+            font-weight: bold;
+            margin: 0.83em 0;
+        }
+
+        #markdownPreview p {
+            margin: 1em 0;
+        }
+
+        #markdownPreview ul, #markdownPreview ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+
+        #markdownPreview li {
+            margin: 0.5em 0;
+        }
+
+        #markdownPreview code {
+            background-color: #374151;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        #markdownPreview pre {
+            background-color: #1f2937;
+            padding: 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+
+        #markdownPreview pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        #markdownPreview blockquote {
+            border-left: 4px solid #4b5563;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #9ca3af;
+        }
+
+        #markdownPreview a {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+
+        #markdownPreview hr {
+            border: none;
+            border-top: 1px solid #4b5563;
+            margin: 2em 0;
         }
     </style>
 </head>
 <body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
     <div class="w-full max-w-4xl h-[90vh] flex flex-col bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
+
+        <!-- Tab Bar -->
+        <div class="flex items-center gap-2 px-4 py-2 bg-gray-800 border-b border-gray-700 overflow-x-auto">
+            <div id="tabContainer" class="flex items-center gap-2 flex-1 overflow-x-auto">
+                <!-- Tabs will be inserted here -->
+            </div>
+            <div class="flex items-center gap-2 ml-auto flex-shrink-0">
+                <!-- Tab Dropdown -->
+                <select id="tabDropdown" class="bg-gray-700 text-gray-200 text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500">
+                    <!-- Options will be populated by JS -->
+                </select>
+                <!-- New Tab Button -->
+                <button id="newTabBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded text-sm font-medium transition-colors">
+                    + New Tab
+                </button>
+            </div>
+        </div>
 
         <!-- Counter Bar -->
         <div class="flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
@@ -53,37 +155,203 @@
                 </div>
             </div>
 
-            <!-- Auto-save indicator -->
-            <div class="flex items-center gap-2 text-xs text-gray-500">
-                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="font-medium">Auto-saved</span>
+            <div class="flex items-center gap-4">
+                <!-- Markdown Toggle -->
+                <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    <span class="font-medium">Preview</span>
+                </button>
+
+                <!-- Auto-save indicator -->
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="font-medium">Auto-saved</span>
+                </div>
             </div>
         </div>
 
-        <!-- Textarea -->
-        <textarea
-            id="notepad"
-            placeholder="Start typing..."
-            autofocus
-            class="flex-1 w-full bg-gray-900 text-gray-100 placeholder-gray-600 px-8 py-6 text-base md:text-lg leading-relaxed resize-none outline-none focus:ring-0 font-mono"
-        ></textarea>
+        <!-- Editor/Preview Container -->
+        <div class="flex-1 relative overflow-hidden">
+            <!-- Textarea -->
+            <textarea
+                id="notepad"
+                placeholder="Start typing..."
+                autofocus
+                class="absolute inset-0 w-full h-full bg-gray-900 text-gray-100 placeholder-gray-600 px-8 py-6 text-base md:text-lg leading-relaxed resize-none outline-none focus:ring-0 font-mono"
+            ></textarea>
+
+            <!-- Markdown Preview -->
+            <div id="markdownPreview" class="absolute inset-0 w-full h-full bg-gray-900 text-gray-100 px-8 py-6 text-base md:text-lg leading-relaxed hidden">
+            </div>
+        </div>
     </div>
 
     <script>
-        const notepad = document.getElementById('notepad');
-        const charCount = document.getElementById('charCount');
-        const wordCount = document.getElementById('wordCount');
-        let saveTimeout;
+        // Tab Management
+        class TabManager {
+            constructor() {
+                this.tabs = [];
+                this.activeTabId = null;
+                this.loadTabs();
+                this.init();
+            }
 
-        // Load saved content from localStorage
-        const savedContent = localStorage.getItem('notepadContent');
-        if (savedContent) {
-            notepad.value = savedContent;
-            updateCounters();
+            init() {
+                if (this.tabs.length === 0) {
+                    this.createTab();
+                } else {
+                    this.activeTabId = this.tabs[0].id;
+                    this.renderTabs();
+                    this.loadActiveTab();
+                }
+            }
+
+            loadTabs() {
+                const savedTabs = localStorage.getItem('notepadTabs');
+                if (savedTabs) {
+                    this.tabs = JSON.parse(savedTabs);
+                }
+                const savedActiveTab = localStorage.getItem('activeTabId');
+                if (savedActiveTab) {
+                    this.activeTabId = savedActiveTab;
+                }
+            }
+
+            saveTabs() {
+                localStorage.setItem('notepadTabs', JSON.stringify(this.tabs));
+                localStorage.setItem('activeTabId', this.activeTabId);
+            }
+
+            createTab() {
+                const newTab = {
+                    id: Date.now().toString(),
+                    title: `Note ${this.tabs.length + 1}`,
+                    content: ''
+                };
+                this.tabs.push(newTab);
+                this.activeTabId = newTab.id;
+                this.saveTabs();
+                this.renderTabs();
+                this.loadActiveTab();
+            }
+
+            switchTab(tabId) {
+                // Save current tab content before switching
+                this.saveCurrentTabContent();
+                this.activeTabId = tabId;
+                this.saveTabs();
+                this.renderTabs();
+                this.loadActiveTab();
+            }
+
+            closeTab(tabId) {
+                if (this.tabs.length === 1) {
+                    // Don't close the last tab, just clear it
+                    this.tabs[0].content = '';
+                    this.tabs[0].title = 'Note 1';
+                    this.saveTabs();
+                    this.loadActiveTab();
+                    return;
+                }
+
+                const tabIndex = this.tabs.findIndex(t => t.id === tabId);
+                this.tabs.splice(tabIndex, 1);
+
+                // Switch to another tab
+                if (this.activeTabId === tabId) {
+                    const newActiveIndex = Math.min(tabIndex, this.tabs.length - 1);
+                    this.activeTabId = this.tabs[newActiveIndex].id;
+                }
+
+                this.saveTabs();
+                this.renderTabs();
+                this.loadActiveTab();
+            }
+
+            saveCurrentTabContent() {
+                const activeTab = this.tabs.find(t => t.id === this.activeTabId);
+                if (activeTab) {
+                    activeTab.content = notepad.value;
+                    // Auto-generate title from first line
+                    const firstLine = notepad.value.split('\n')[0].trim();
+                    if (firstLine) {
+                        activeTab.title = firstLine.substring(0, 20) + (firstLine.length > 20 ? '...' : '');
+                    }
+                    this.saveTabs();
+                }
+            }
+
+            loadActiveTab() {
+                const activeTab = this.tabs.find(t => t.id === this.activeTabId);
+                if (activeTab) {
+                    notepad.value = activeTab.content;
+                    updateCounters();
+                    updateMarkdownPreview();
+                }
+            }
+
+            renderTabs() {
+                const tabContainer = document.getElementById('tabContainer');
+                const tabDropdown = document.getElementById('tabDropdown');
+
+                // Render tab buttons
+                tabContainer.innerHTML = this.tabs.map(tab => `
+                    <div class="flex items-center gap-1 bg-gray-700 ${tab.id === this.activeTabId ? 'ring-1 ring-gray-500' : ''} rounded px-3 py-1 flex-shrink-0">
+                        <button class="tab-button text-sm text-gray-200 hover:text-white transition-colors" data-tab-id="${tab.id}">
+                            ${tab.title}
+                        </button>
+                        <button class="close-tab text-gray-400 hover:text-red-400 transition-colors ml-1" data-tab-id="${tab.id}">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+
+                // Render dropdown options
+                tabDropdown.innerHTML = this.tabs.map(tab => `
+                    <option value="${tab.id}" ${tab.id === this.activeTabId ? 'selected' : ''}>
+                        ${tab.title}
+                    </option>
+                `).join('');
+
+                // Attach event listeners
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const tabId = e.target.getAttribute('data-tab-id');
+                        this.switchTab(tabId);
+                    });
+                });
+
+                document.querySelectorAll('.close-tab').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const tabId = e.target.closest('button').getAttribute('data-tab-id');
+                        this.closeTab(tabId);
+                    });
+                });
+            }
         }
 
+        // Initialize
+        const notepad = document.getElementById('notepad');
+        const markdownPreview = document.getElementById('markdownPreview');
+        const markdownToggle = document.getElementById('markdownToggle');
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+        const newTabBtn = document.getElementById('newTabBtn');
+        const tabDropdown = document.getElementById('tabDropdown');
+        let saveTimeout;
+        let isPreviewMode = false;
+
+        const tabManager = new TabManager();
+
+        // Update counters
         function updateCounters() {
             const text = notepad.value;
 
@@ -95,8 +363,16 @@
             wordCount.textContent = words.length.toLocaleString();
         }
 
+        // Update markdown preview
+        function updateMarkdownPreview() {
+            if (typeof marked !== 'undefined') {
+                markdownPreview.innerHTML = marked.parse(notepad.value || '*No content to preview*');
+            }
+        }
+
+        // Show saving indicator
         function showSavingIndicator() {
-            const indicator = document.querySelector('.flex.items-center.gap-2.text-xs');
+            const indicator = document.querySelector('.flex.items-center.gap-2.text-xs.text-gray-500');
             indicator.classList.remove('text-gray-500');
             indicator.classList.add('text-green-500');
 
@@ -107,12 +383,39 @@
             }, 1000);
         }
 
+        // Toggle markdown preview
+        markdownToggle.addEventListener('click', () => {
+            isPreviewMode = !isPreviewMode;
+            if (isPreviewMode) {
+                updateMarkdownPreview();
+                notepad.classList.add('hidden');
+                markdownPreview.classList.remove('hidden');
+                markdownToggle.querySelector('span').textContent = 'Edit';
+            } else {
+                notepad.classList.remove('hidden');
+                markdownPreview.classList.add('hidden');
+                markdownToggle.querySelector('span').textContent = 'Preview';
+            }
+        });
+
+        // New tab button
+        newTabBtn.addEventListener('click', () => {
+            tabManager.createTab();
+        });
+
+        // Tab dropdown
+        tabDropdown.addEventListener('change', (e) => {
+            tabManager.switchTab(e.target.value);
+        });
+
         // Update counters on input
         notepad.addEventListener('input', () => {
             updateCounters();
-            // Save to localStorage
-            localStorage.setItem('notepadContent', notepad.value);
+            tabManager.saveCurrentTabContent();
             showSavingIndicator();
+            if (isPreviewMode) {
+                updateMarkdownPreview();
+            }
         });
 
         // Handle tab key
@@ -135,11 +438,16 @@
 
         // Add smooth focus effect
         notepad.addEventListener('focus', () => {
-            notepad.parentElement.classList.add('ring-1', 'ring-gray-700');
+            notepad.parentElement.parentElement.classList.add('ring-1', 'ring-gray-700');
         });
 
         notepad.addEventListener('blur', () => {
-            notepad.parentElement.classList.remove('ring-1', 'ring-gray-700');
+            notepad.parentElement.parentElement.classList.remove('ring-1', 'ring-gray-700');
+        });
+
+        // Save content before closing/refreshing
+        window.addEventListener('beforeunload', () => {
+            tabManager.saveCurrentTabContent();
         });
     </script>
 </body>
