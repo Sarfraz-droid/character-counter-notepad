@@ -19,13 +19,12 @@
 
         textarea::-webkit-scrollbar-thumb,
         #markdownPreview::-webkit-scrollbar-thumb {
-            background: #4b5563;
-            border-radius: 4px;
+            background: #374151;
         }
 
         textarea::-webkit-scrollbar-thumb:hover,
         #markdownPreview::-webkit-scrollbar-thumb:hover {
-            background: #6b7280;
+            background: #4b5563;
         }
 
         #markdownPreview {
@@ -64,18 +63,17 @@
         }
 
         #markdownPreview code {
-            background-color: #374151;
+            background-color: #1f2937;
             padding: 0.2em 0.4em;
-            border-radius: 3px;
             font-family: monospace;
         }
 
         #markdownPreview pre {
-            background-color: #1f2937;
+            background-color: #0a0a0a;
             padding: 1em;
-            border-radius: 6px;
             overflow-x: auto;
             margin: 1em 0;
+            border-left: 2px solid #374151;
         }
 
         #markdownPreview pre code {
@@ -84,20 +82,21 @@
         }
 
         #markdownPreview blockquote {
-            border-left: 4px solid #4b5563;
+            border-left: 2px solid #374151;
             padding-left: 1em;
             margin: 1em 0;
-            color: #9ca3af;
+            color: #6b7280;
         }
 
         #markdownPreview a {
             color: #60a5fa;
-            text-decoration: underline;
+            text-decoration: none;
+            border-bottom: 1px solid #374151;
         }
 
         #markdownPreview hr {
             border: none;
-            border-top: 1px solid #4b5563;
+            border-top: 1px solid #374151;
             margin: 2em 0;
         }
 
@@ -109,7 +108,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.85);
             opacity: 0;
             transition: opacity 0.2s ease-in-out;
         }
@@ -134,7 +133,7 @@
         .tab-modal-backdrop {
             position: fixed;
             inset: 0;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.85);
             z-index: 9998;
             display: none;
             opacity: 0;
@@ -149,16 +148,14 @@
         }
 
         .dropdown-menu {
-            background-color: #374151;
-            border: 1px solid #4b5563;
-            border-radius: 12px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            background-color: #1a1a1a;
+            border: 1px solid #2a2a2a;
             width: 90%;
             max-width: 480px;
             max-height: 70vh;
             overflow-y: auto;
             z-index: 9999;
-            transform: scale(0.9);
+            transform: scale(0.95);
             opacity: 0;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -173,28 +170,26 @@
         }
 
         .dropdown-menu::-webkit-scrollbar-track {
-            background: #1f2937;
-            border-radius: 0 12px 12px 0;
+            background: #0a0a0a;
         }
 
         .dropdown-menu::-webkit-scrollbar-thumb {
-            background: #4b5563;
-            border-radius: 4px;
+            background: #2a2a2a;
         }
 
         .dropdown-menu::-webkit-scrollbar-thumb:hover {
-            background: #6b7280;
+            background: #374151;
         }
 
         .dropdown-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 1rem;
-            color: #e5e7eb;
+            padding: 0.875rem 1rem;
+            color: #9ca3af;
             cursor: pointer;
-            transition: all 0.15s ease;
-            border-bottom: 1px solid #4b5563;
+            transition: background-color 0.1s ease;
+            border-bottom: 1px solid #2a2a2a;
         }
 
         .dropdown-item:last-child {
@@ -202,22 +197,25 @@
         }
 
         .dropdown-item:hover {
-            background-color: #4b5563;
+            background-color: #0a0a0a;
+            color: #e5e7eb;
         }
 
         .dropdown-item.active {
-            background-color: #1f2937;
+            background-color: #0a0a0a;
+            color: #e5e7eb;
+            border-left: 2px solid #60a5fa;
         }
 
         .dropdown-item.new-tab {
             color: #60a5fa;
-            font-weight: 600;
-            border-top: 2px solid #4b5563;
-            background-color: #1f2937;
+            font-weight: 500;
+            border-top: 1px solid #2a2a2a;
+            background-color: #0a0a0a;
         }
 
         .dropdown-item.new-tab:hover {
-            background-color: #374151;
+            background-color: #1a1a1a;
         }
 
         .tab-actions {
@@ -233,38 +231,17 @@
 
         .action-btn {
             padding: 0.25rem;
-            border-radius: 4px;
-            transition: all 0.15s ease;
+            transition: all 0.1s ease;
         }
 
         .action-btn:hover {
-            background-color: #6b7280;
+            background-color: #2a2a2a;
         }
 
         .action-btn.delete:hover {
-            background-color: #dc2626;
+            background-color: #991b1b;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .dropdown-item {
-            animation: slideIn 0.2s ease forwards;
-        }
-
-        .dropdown-item:nth-child(1) { animation-delay: 0.02s; }
-        .dropdown-item:nth-child(2) { animation-delay: 0.04s; }
-        .dropdown-item:nth-child(3) { animation-delay: 0.06s; }
-        .dropdown-item:nth-child(4) { animation-delay: 0.08s; }
-        .dropdown-item:nth-child(5) { animation-delay: 0.10s; }
 
         /* Floating Tab Button */
         .floating-tab-button {
@@ -272,41 +249,39 @@
             bottom: 2rem;
             right: 2rem;
             z-index: 1000;
-            background-color: #3b82f6;
-            color: white;
-            padding: 1rem;
-            border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+            background-color: #1a1a1a;
+            color: #9ca3af;
+            padding: 0.875rem;
+            border: 1px solid #2a2a2a;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.15s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: none;
         }
 
         .floating-tab-button:hover {
-            background-color: #2563eb;
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
-            transform: scale(1.05);
+            background-color: #0a0a0a;
+            color: #e5e7eb;
+            border-color: #374151;
         }
 
         .floating-tab-button:active {
-            transform: scale(0.95);
+            transform: scale(0.97);
         }
 
         .tab-badge {
             position: absolute;
-            top: -4px;
-            right: -4px;
-            background-color: #ef4444;
+            top: -6px;
+            right: -6px;
+            background-color: #dc2626;
             color: white;
-            font-size: 0.75rem;
-            font-weight: bold;
+            font-size: 0.7rem;
+            font-weight: 600;
             padding: 0.125rem 0.375rem;
-            border-radius: 9999px;
-            min-width: 1.25rem;
+            min-width: 1.125rem;
             text-align: center;
+            border: 1px solid #0a0a0a;
         }
 
         /* Focus Mode Styles */
@@ -335,11 +310,11 @@
         }
     </style>
 </head>
-<body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
-    <div class="w-full max-w-4xl h-[90vh] flex flex-col bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
+<body class="bg-black min-h-screen flex items-center justify-center p-0">
+    <div class="w-full max-w-4xl h-screen flex flex-col bg-neutral-950 overflow-hidden border border-neutral-900">
 
         <!-- Counter Bar -->
-        <div class="counter-bar flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
+        <div class="counter-bar flex items-center justify-between px-6 py-3 bg-neutral-900 border-b border-neutral-800">
             <div class="flex items-center gap-8">
                 <!-- Character Counter -->
                 <div class="flex items-center gap-3">
@@ -351,8 +326,8 @@
                             <span class="text-sm text-gray-400 font-medium">Characters</span>
                             <span class="text-sm text-gray-200 font-semibold tabular-nums" id="charCount">0</span>
                         </div>
-                        <div id="charProgress" class="hidden h-1 w-32 bg-gray-700 rounded-full overflow-hidden">
-                            <div id="charProgressBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                        <div id="charProgress" class="hidden h-0.5 w-32 bg-neutral-800 overflow-hidden">
+                            <div id="charProgressBar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -367,14 +342,14 @@
                             <span class="text-sm text-gray-400 font-medium">Words</span>
                             <span class="text-sm text-gray-200 font-semibold tabular-nums" id="wordCount">0</span>
                         </div>
-                        <div id="wordProgress" class="hidden h-1 w-32 bg-gray-700 rounded-full overflow-hidden">
-                            <div id="wordProgressBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                        <div id="wordProgress" class="hidden h-0.5 w-32 bg-neutral-800 overflow-hidden">
+                            <div id="wordProgressBar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Goal Settings Button -->
-                <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-gray-400 hover:text-blue-400 transition-colors px-2 py-1.5 rounded hover:bg-gray-800" title="Set goals">
+                <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-300 transition-colors px-2 py-1.5 hover:bg-neutral-800" title="Set goals">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
@@ -383,7 +358,7 @@
 
             <div class="flex items-center gap-4">
                 <!-- Focus Mode Toggle -->
-                <button id="focusModeToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800" title="Toggle Focus Mode (Ctrl+Shift+F)">
+                <button id="focusModeToggle" class="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-300 transition-colors px-3 py-1.5 hover:bg-neutral-800" title="Toggle Focus Mode (Ctrl+Shift+F)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -393,7 +368,7 @@
                 </button>
 
                 <!-- Markdown Toggle -->
-                <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
+                <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-300 transition-colors px-3 py-1.5 hover:bg-neutral-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -417,11 +392,11 @@
                 id="notepad"
                 placeholder="Start typing..."
                 autofocus
-                class="absolute inset-0 w-full h-full bg-gray-900 text-gray-100 placeholder-gray-600 px-8 py-6 text-base md:text-lg leading-relaxed resize-none outline-none focus:ring-0 font-mono"
+                class="absolute inset-0 w-full h-full bg-neutral-950 text-gray-100 placeholder-gray-700 px-8 py-6 text-base md:text-lg leading-relaxed resize-none outline-none focus:ring-0 font-mono"
             ></textarea>
 
             <!-- Markdown Preview -->
-            <div id="markdownPreview" class="absolute inset-0 w-full h-full bg-gray-900 text-gray-100 px-8 py-6 text-base md:text-lg leading-relaxed hidden">
+            <div id="markdownPreview" class="absolute inset-0 w-full h-full bg-neutral-950 text-gray-100 px-8 py-6 text-base md:text-lg leading-relaxed hidden">
             </div>
         </div>
     </div>
@@ -443,19 +418,19 @@
 
     <!-- Rename Modal -->
     <div id="renameModal" class="modal">
-        <div class="modal-content bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-100 mb-4">Rename Tab</h3>
+        <div class="modal-content bg-neutral-900 p-6 w-full max-w-md border border-neutral-800">
+            <h3 class="text-lg font-medium text-gray-100 mb-4">Rename Tab</h3>
             <input
                 type="text"
                 id="renameInput"
-                class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                class="w-full bg-neutral-950 text-gray-100 px-3 py-2 border border-neutral-800 focus:outline-none focus:border-neutral-700 mb-4"
                 placeholder="Enter tab name..."
             />
-            <div class="flex justify-end gap-3">
-                <button id="cancelRenameBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors">
+            <div class="flex justify-end gap-2">
+                <button id="cancelRenameBtn" class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-gray-300 transition-colors">
                     Cancel
                 </button>
-                <button id="confirmRenameBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+                <button id="confirmRenameBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white transition-colors">
                     Rename
                 </button>
             </div>
@@ -464,40 +439,40 @@
 
     <!-- Goal Settings Modal -->
     <div id="goalModal" class="modal">
-        <div class="modal-content bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-100 mb-4">Set Goals for This Note</h3>
-            <p class="text-sm text-gray-400 mb-4">Set optional word and character count goals. Leave blank or set to 0 to remove a goal.</p>
+        <div class="modal-content bg-neutral-900 p-6 w-full max-w-md border border-neutral-800">
+            <h3 class="text-lg font-medium text-gray-100 mb-3">Set Goals</h3>
+            <p class="text-xs text-gray-500 mb-4">Optional word and character goals. Set to 0 to remove.</p>
 
-            <div class="space-y-4 mb-6">
+            <div class="space-y-3 mb-6">
                 <div>
-                    <label class="block text-sm text-gray-300 mb-2">Character Goal</label>
+                    <label class="block text-sm text-gray-400 mb-1.5">Character Goal</label>
                     <input
                         type="number"
                         id="charGoalInput"
                         min="0"
-                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full bg-neutral-950 text-gray-100 px-3 py-2 border border-neutral-800 focus:outline-none focus:border-neutral-700"
                         placeholder="e.g., 1000"
                     />
                 </div>
 
                 <div>
-                    <label class="block text-sm text-gray-300 mb-2">Word Goal</label>
+                    <label class="block text-sm text-gray-400 mb-1.5">Word Goal</label>
                     <input
                         type="number"
                         id="wordGoalInput"
                         min="0"
-                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full bg-neutral-950 text-gray-100 px-3 py-2 border border-neutral-800 focus:outline-none focus:border-neutral-700"
                         placeholder="e.g., 200"
                     />
                 </div>
             </div>
 
-            <div class="flex justify-end gap-3">
-                <button id="cancelGoalBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors">
+            <div class="flex justify-end gap-2">
+                <button id="cancelGoalBtn" class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-gray-300 transition-colors">
                     Cancel
                 </button>
-                <button id="confirmGoalBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
-                    Save Goals
+                <button id="confirmGoalBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white transition-colors">
+                    Save
                 </button>
             </div>
         </div>
@@ -625,9 +600,9 @@
 
                 // Modal header
                 const modalHeader = `
-                    <div style="padding: 1.5rem; border-bottom: 1px solid #4b5563; display: flex; align-items: center; justify-content: space-between; background-color: #1f2937; border-radius: 12px 12px 0 0;">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin: 0;">Manage Tabs</h3>
-                        <button id="closeTabModal" style="padding: 0.5rem; color: #9ca3af; hover:color: #e5e7eb; background: none; border: none; cursor: pointer; border-radius: 6px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;">
+                    <div style="padding: 1rem 1.25rem; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: space-between; background-color: #0a0a0a;">
+                        <h3 style="font-size: 1rem; font-weight: 500; color: #e5e7eb; margin: 0;">Tabs</h3>
+                        <button id="closeTabModal" style="padding: 0.375rem; color: #6b7280; background: none; border: none; cursor: pointer; transition: color 0.15s; display: flex; align-items: center; justify-content: center;">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
