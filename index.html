@@ -303,9 +303,14 @@
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-400 font-medium">Characters</span>
-                        <span class="text-sm text-gray-200 font-semibold tabular-nums" id="charCount">0</span>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-400 font-medium">Characters</span>
+                            <span class="text-sm text-gray-200 font-semibold tabular-nums" id="charCount">0</span>
+                        </div>
+                        <div id="charProgress" class="hidden h-1 w-32 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="charProgressBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -314,11 +319,23 @@
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-400 font-medium">Words</span>
-                        <span class="text-sm text-gray-200 font-semibold tabular-nums" id="wordCount">0</span>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-400 font-medium">Words</span>
+                            <span class="text-sm text-gray-200 font-semibold tabular-nums" id="wordCount">0</span>
+                        </div>
+                        <div id="wordProgress" class="hidden h-1 w-32 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="wordProgressBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Goal Settings Button -->
+                <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-gray-400 hover:text-blue-400 transition-colors px-2 py-1.5 rounded hover:bg-gray-800" title="Set goals">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </button>
             </div>
 
             <div class="flex items-center gap-4">
@@ -393,6 +410,47 @@
         </div>
     </div>
 
+    <!-- Goal Settings Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-100 mb-4">Set Goals for This Note</h3>
+            <p class="text-sm text-gray-400 mb-4">Set optional word and character count goals. Leave blank or set to 0 to remove a goal.</p>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm text-gray-300 mb-2">Character Goal</label>
+                    <input
+                        type="number"
+                        id="charGoalInput"
+                        min="0"
+                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., 1000"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm text-gray-300 mb-2">Word Goal</label>
+                    <input
+                        type="number"
+                        id="wordGoalInput"
+                        min="0"
+                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., 200"
+                    />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button id="cancelGoalBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors">
+                    Cancel
+                </button>
+                <button id="confirmGoalBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+                    Save Goals
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Tab Management
         class TabManager {
@@ -433,7 +491,9 @@
                 const newTab = {
                     id: Date.now().toString(),
                     title: `Note ${this.tabs.length + 1}`,
-                    content: ''
+                    content: '',
+                    charGoal: null,
+                    wordGoal: null
                 };
                 this.tabs.push(newTab);
                 this.activeTabId = newTab.id;
@@ -441,6 +501,17 @@
                 this.renderDropdown();
                 this.loadActiveTab();
                 updateCurrentTabName();
+                updateCounters();
+            }
+
+            setGoals(tabId, charGoal, wordGoal) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (tab) {
+                    tab.charGoal = charGoal > 0 ? charGoal : null;
+                    tab.wordGoal = wordGoal > 0 ? wordGoal : null;
+                    this.saveTabs();
+                    updateCounters();
+                }
             }
 
             switchTab(tabId) {
@@ -601,6 +672,12 @@
         const renameInput = document.getElementById('renameInput');
         const confirmRenameBtn = document.getElementById('confirmRenameBtn');
         const cancelRenameBtn = document.getElementById('cancelRenameBtn');
+        const goalModal = document.getElementById('goalModal');
+        const goalSettingsBtn = document.getElementById('goalSettingsBtn');
+        const charGoalInput = document.getElementById('charGoalInput');
+        const wordGoalInput = document.getElementById('wordGoalInput');
+        const confirmGoalBtn = document.getElementById('confirmGoalBtn');
+        const cancelGoalBtn = document.getElementById('cancelGoalBtn');
         let saveTimeout;
         let isPreviewMode = false;
         let currentRenameTabId = null;
@@ -687,6 +764,9 @@
                     renameModal.classList.remove('active');
                     currentRenameTabId = null;
                 }
+                if (goalModal.classList.contains('active')) {
+                    goalModal.classList.remove('active');
+                }
                 if (dropdownMenu.classList.contains('active')) {
                     closeDropdown();
                 }
@@ -700,16 +780,110 @@
             }
         });
 
+        // Goal settings modal functions
+        goalSettingsBtn.addEventListener('click', () => {
+            const activeTab = tabManager.getActiveTab();
+            if (activeTab) {
+                charGoalInput.value = activeTab.charGoal || '';
+                wordGoalInput.value = activeTab.wordGoal || '';
+                goalModal.classList.add('active');
+                setTimeout(() => charGoalInput.focus(), 100);
+            }
+        });
+
+        confirmGoalBtn.addEventListener('click', () => {
+            const charGoal = parseInt(charGoalInput.value) || 0;
+            const wordGoal = parseInt(wordGoalInput.value) || 0;
+            tabManager.setGoals(tabManager.activeTabId, charGoal, wordGoal);
+            goalModal.classList.remove('active');
+        });
+
+        cancelGoalBtn.addEventListener('click', () => {
+            goalModal.classList.remove('active');
+        });
+
+        // Save goals on enter
+        charGoalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                confirmGoalBtn.click();
+            }
+        });
+
+        wordGoalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                confirmGoalBtn.click();
+            }
+        });
+
         // Update counters
         function updateCounters() {
             const text = notepad.value;
+            const activeTab = tabManager.getActiveTab();
+            const charProgressBar = document.getElementById('charProgressBar');
+            const charProgress = document.getElementById('charProgress');
+            const wordProgressBar = document.getElementById('wordProgressBar');
+            const wordProgress = document.getElementById('wordProgress');
 
             // Character count
-            charCount.textContent = text.length.toLocaleString();
+            const chars = text.length;
+            if (activeTab && activeTab.charGoal) {
+                const percentage = Math.min((chars / activeTab.charGoal) * 100, 100);
+                charCount.textContent = `${chars.toLocaleString()} / ${activeTab.charGoal.toLocaleString()}`;
+
+                // Show and update progress bar
+                charProgress.classList.remove('hidden');
+                charProgressBar.style.width = `${percentage}%`;
+
+                // Color based on progress
+                if (percentage >= 100) {
+                    charCount.className = 'text-sm text-green-400 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-green-500 transition-all duration-300';
+                } else if (percentage >= 75) {
+                    charCount.className = 'text-sm text-blue-400 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-blue-500 transition-all duration-300';
+                } else if (percentage >= 50) {
+                    charCount.className = 'text-sm text-yellow-400 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-yellow-500 transition-all duration-300';
+                } else {
+                    charCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-gray-400 transition-all duration-300';
+                }
+            } else {
+                charCount.textContent = chars.toLocaleString();
+                charCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                charProgress.classList.add('hidden');
+            }
 
             // Word count
             const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-            wordCount.textContent = words.length.toLocaleString();
+            const wordCountValue = words.length;
+            if (activeTab && activeTab.wordGoal) {
+                const percentage = Math.min((wordCountValue / activeTab.wordGoal) * 100, 100);
+                wordCount.textContent = `${wordCountValue.toLocaleString()} / ${activeTab.wordGoal.toLocaleString()}`;
+
+                // Show and update progress bar
+                wordProgress.classList.remove('hidden');
+                wordProgressBar.style.width = `${percentage}%`;
+
+                // Color based on progress
+                if (percentage >= 100) {
+                    wordCount.className = 'text-sm text-green-400 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-green-500 transition-all duration-300';
+                } else if (percentage >= 75) {
+                    wordCount.className = 'text-sm text-blue-400 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-blue-500 transition-all duration-300';
+                } else if (percentage >= 50) {
+                    wordCount.className = 'text-sm text-yellow-400 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-yellow-500 transition-all duration-300';
+                } else {
+                    wordCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-gray-400 transition-all duration-300';
+                }
+            } else {
+                wordCount.textContent = wordCountValue.toLocaleString();
+                wordCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                wordProgress.classList.add('hidden');
+            }
         }
 
         // Update markdown preview
