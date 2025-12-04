@@ -130,41 +130,6 @@
             transform: scale(1);
         }
 
-        .custom-dropdown {
-            position: relative;
-            z-index: 200;
-        }
-
-        .dropdown-button {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            background-color: #374151;
-            border: 1px solid #4b5563;
-            border-radius: 6px;
-            color: #e5e7eb;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 200px;
-            max-width: 280px;
-            justify-content: space-between;
-            position: relative;
-            z-index: 201;
-        }
-
-        #currentTabName {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .dropdown-button:hover {
-            background-color: #4b5563;
-        }
-
         .dropdown-menu {
             position: fixed;
             background-color: #374151;
@@ -262,14 +227,6 @@
             background-color: #dc2626;
         }
 
-        .chevron {
-            transition: transform 0.25s ease;
-        }
-
-        .chevron.rotated {
-            transform: rotate(180deg);
-        }
-
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -290,6 +247,49 @@
         .dropdown-item:nth-child(3) { animation-delay: 0.06s; }
         .dropdown-item:nth-child(4) { animation-delay: 0.08s; }
         .dropdown-item:nth-child(5) { animation-delay: 0.10s; }
+
+        /* Floating Tab Button */
+        .floating-tab-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background-color: #3b82f6;
+            color: white;
+            padding: 1rem;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+        }
+
+        .floating-tab-button:hover {
+            background-color: #2563eb;
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
+            transform: scale(1.05);
+        }
+
+        .floating-tab-button:active {
+            transform: scale(0.95);
+        }
+
+        .tab-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.125rem 0.375rem;
+            border-radius: 9999px;
+            min-width: 1.25rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -339,16 +339,6 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- Custom Tab Dropdown -->
-                <div class="custom-dropdown">
-                    <button class="dropdown-button" id="dropdownButton">
-                        <span id="currentTabName">Note 1</span>
-                        <svg class="w-4 h-4 chevron" id="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                </div>
-
                 <!-- Markdown Toggle -->
                 <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,6 +378,14 @@
     <div class="dropdown-menu" id="dropdownMenu">
         <!-- Tabs will be inserted here -->
     </div>
+
+    <!-- Floating Tab Button -->
+    <button class="floating-tab-button" id="floatingTabButton" title="Manage tabs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <span class="tab-badge" id="tabBadge">1</span>
+    </button>
 
     <!-- Rename Modal -->
     <div id="renameModal" class="modal">
@@ -500,7 +498,6 @@
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
-                updateCurrentTabName();
                 updateCounters(this);
             }
 
@@ -521,7 +518,6 @@
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
-                updateCurrentTabName();
             }
 
             renameTab(tabId, newTitle) {
@@ -530,7 +526,6 @@
                     tab.title = newTitle.trim();
                     this.saveTabs();
                     this.renderDropdown();
-                    updateCurrentTabName();
                 }
             }
 
@@ -552,7 +547,6 @@
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
-                updateCurrentTabName();
             }
 
             saveCurrentTabContent() {
@@ -605,6 +599,12 @@
                 `;
 
                 dropdownMenu.innerHTML = tabItems + newTabButton;
+
+                // Update tab badge count
+                const tabBadge = document.getElementById('tabBadge');
+                if (tabBadge) {
+                    tabBadge.textContent = this.tabs.length;
+                }
 
                 // Attach event listeners
                 this.attachDropdownListeners();
@@ -664,10 +664,8 @@
         const markdownToggle = document.getElementById('markdownToggle');
         const charCount = document.getElementById('charCount');
         const wordCount = document.getElementById('wordCount');
-        const dropdownButton = document.getElementById('dropdownButton');
+        const floatingTabButton = document.getElementById('floatingTabButton');
         const dropdownMenu = document.getElementById('dropdownMenu');
-        const chevron = document.getElementById('chevron');
-        const currentTabName = document.getElementById('currentTabName');
         const renameModal = document.getElementById('renameModal');
         const renameInput = document.getElementById('renameInput');
         const confirmRenameBtn = document.getElementById('confirmRenameBtn');
@@ -684,16 +682,8 @@
 
         const tabManager = new TabManager();
 
-        // Update current tab name display
-        function updateCurrentTabName() {
-            const activeTab = tabManager.getActiveTab();
-            if (activeTab) {
-                currentTabName.textContent = activeTab.title;
-            }
-        }
-
         // Dropdown toggle
-        dropdownButton.addEventListener('click', (e) => {
+        floatingTabButton.addEventListener('click', (e) => {
             e.stopPropagation();
             const isActive = dropdownMenu.classList.contains('active');
             if (isActive) {
@@ -704,27 +694,25 @@
         });
 
         function openDropdown() {
-            // Calculate position based on button location
-            const rect = dropdownButton.getBoundingClientRect();
-            const top = rect.bottom + 8;
-            const left = rect.right - 280;
+            // Calculate position based on floating button location
+            const rect = floatingTabButton.getBoundingClientRect();
+            const top = rect.top - 400; // Position above the button
+            const left = rect.left - 280 + 28; // Align right edge with button
 
-            dropdownMenu.style.top = top + 'px';
+            dropdownMenu.style.top = Math.max(20, top) + 'px';
             dropdownMenu.style.left = left + 'px';
             dropdownMenu.style.right = 'auto';
 
             dropdownMenu.classList.add('active');
-            chevron.classList.add('rotated');
         }
 
         function closeDropdown() {
             dropdownMenu.classList.remove('active');
-            chevron.classList.remove('rotated');
         }
 
         // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
-            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            if (!floatingTabButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
                 closeDropdown();
             }
         });
@@ -963,9 +951,6 @@
         window.addEventListener('beforeunload', () => {
             tabManager.saveCurrentTabContent();
         });
-
-        // Initial setup
-        updateCurrentTabName();
     </script>
 </body>
 </html>
