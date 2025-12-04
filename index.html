@@ -130,68 +130,60 @@
             transform: scale(1);
         }
 
-        .custom-dropdown {
-            position: relative;
-            z-index: 200;
+        /* Tab Modal */
+        .tab-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9998;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
         }
 
-        .dropdown-button {
+        .tab-modal-backdrop.active {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            background-color: #374151;
-            border: 1px solid #4b5563;
-            border-radius: 6px;
-            color: #e5e7eb;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 200px;
-            justify-content: space-between;
-            position: relative;
-            z-index: 201;
-        }
-
-        .dropdown-button:hover {
-            background-color: #4b5563;
+            justify-content: center;
+            opacity: 1;
         }
 
         .dropdown-menu {
-            position: fixed;
             background-color: #374151;
             border: 1px solid #4b5563;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            min-width: 280px;
-            max-height: 400px;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            width: 90%;
+            max-width: 480px;
+            max-height: 70vh;
             overflow-y: auto;
             z-index: 9999;
-            visibility: hidden;
+            transform: scale(0.9);
             opacity: 0;
-            transform: scale(0.95);
-            transform-origin: top right;
-            pointer-events: none;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .dropdown-menu.active {
-            visibility: visible;
-            opacity: 1;
+        .tab-modal-backdrop.active .dropdown-menu {
             transform: scale(1);
-            pointer-events: all;
+            opacity: 1;
         }
 
         .dropdown-menu::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         .dropdown-menu::-webkit-scrollbar-track {
             background: #1f2937;
+            border-radius: 0 12px 12px 0;
         }
 
         .dropdown-menu::-webkit-scrollbar-thumb {
             background: #4b5563;
-            border-radius: 3px;
+            border-radius: 4px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
         }
 
         .dropdown-item {
@@ -253,14 +245,6 @@
             background-color: #dc2626;
         }
 
-        .chevron {
-            transition: transform 0.25s ease;
-        }
-
-        .chevron.rotated {
-            transform: rotate(180deg);
-        }
-
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -281,6 +265,49 @@
         .dropdown-item:nth-child(3) { animation-delay: 0.06s; }
         .dropdown-item:nth-child(4) { animation-delay: 0.08s; }
         .dropdown-item:nth-child(5) { animation-delay: 0.10s; }
+
+        /* Floating Tab Button */
+        .floating-tab-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background-color: #3b82f6;
+            color: white;
+            padding: 1rem;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+        }
+
+        .floating-tab-button:hover {
+            background-color: #2563eb;
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
+            transform: scale(1.05);
+        }
+
+        .floating-tab-button:active {
+            transform: scale(0.95);
+        }
+
+        .tab-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.125rem 0.375rem;
+            border-radius: 9999px;
+            min-width: 1.25rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -294,9 +321,14 @@
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-400 font-medium">Characters</span>
-                        <span class="text-sm text-gray-200 font-semibold tabular-nums" id="charCount">0</span>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-400 font-medium">Characters</span>
+                            <span class="text-sm text-gray-200 font-semibold tabular-nums" id="charCount">0</span>
+                        </div>
+                        <div id="charProgress" class="hidden h-1 w-32 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="charProgressBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -305,24 +337,26 @@
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-400 font-medium">Words</span>
-                        <span class="text-sm text-gray-200 font-semibold tabular-nums" id="wordCount">0</span>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-400 font-medium">Words</span>
+                            <span class="text-sm text-gray-200 font-semibold tabular-nums" id="wordCount">0</span>
+                        </div>
+                        <div id="wordProgress" class="hidden h-1 w-32 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="wordProgressBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Goal Settings Button -->
+                <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-gray-400 hover:text-blue-400 transition-colors px-2 py-1.5 rounded hover:bg-gray-800" title="Set goals">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </button>
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- Custom Tab Dropdown -->
-                <div class="custom-dropdown">
-                    <button class="dropdown-button" id="dropdownButton">
-                        <span id="currentTabName">Note 1</span>
-                        <svg class="w-4 h-4 chevron" id="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                </div>
-
                 <!-- Markdown Toggle -->
                 <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -358,10 +392,20 @@
         </div>
     </div>
 
-    <!-- Dropdown Menu (at body level) -->
-    <div class="dropdown-menu" id="dropdownMenu">
-        <!-- Tabs will be inserted here -->
+    <!-- Tab Modal (at body level) -->
+    <div class="tab-modal-backdrop" id="tabModalBackdrop">
+        <div class="dropdown-menu" id="dropdownMenu">
+            <!-- Tabs will be inserted here -->
+        </div>
     </div>
+
+    <!-- Floating Tab Button -->
+    <button class="floating-tab-button" id="floatingTabButton" title="Manage tabs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <span class="tab-badge" id="tabBadge">1</span>
+    </button>
 
     <!-- Rename Modal -->
     <div id="renameModal" class="modal">
@@ -379,6 +423,47 @@
                 </button>
                 <button id="confirmRenameBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
                     Rename
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal Settings Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-100 mb-4">Set Goals for This Note</h3>
+            <p class="text-sm text-gray-400 mb-4">Set optional word and character count goals. Leave blank or set to 0 to remove a goal.</p>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm text-gray-300 mb-2">Character Goal</label>
+                    <input
+                        type="number"
+                        id="charGoalInput"
+                        min="0"
+                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., 1000"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm text-gray-300 mb-2">Word Goal</label>
+                    <input
+                        type="number"
+                        id="wordGoalInput"
+                        min="0"
+                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., 200"
+                    />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button id="cancelGoalBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors">
+                    Cancel
+                </button>
+                <button id="confirmGoalBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+                    Save Goals
                 </button>
             </div>
         </div>
@@ -424,14 +509,26 @@
                 const newTab = {
                     id: Date.now().toString(),
                     title: `Note ${this.tabs.length + 1}`,
-                    content: ''
+                    content: '',
+                    charGoal: null,
+                    wordGoal: null
                 };
                 this.tabs.push(newTab);
                 this.activeTabId = newTab.id;
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
-                updateCurrentTabName();
+                updateCounters(this);
+            }
+
+            setGoals(tabId, charGoal, wordGoal) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (tab) {
+                    tab.charGoal = charGoal > 0 ? charGoal : null;
+                    tab.wordGoal = wordGoal > 0 ? wordGoal : null;
+                    this.saveTabs();
+                    updateCounters(this);
+                }
             }
 
             switchTab(tabId) {
@@ -441,7 +538,6 @@
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
-                updateCurrentTabName();
             }
 
             renameTab(tabId, newTitle) {
@@ -450,7 +546,6 @@
                     tab.title = newTitle.trim();
                     this.saveTabs();
                     this.renderDropdown();
-                    updateCurrentTabName();
                 }
             }
 
@@ -472,7 +567,6 @@
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
-                updateCurrentTabName();
             }
 
             saveCurrentTabContent() {
@@ -487,13 +581,25 @@
                 const activeTab = this.tabs.find(t => t.id === this.activeTabId);
                 if (activeTab) {
                     notepad.value = activeTab.content;
-                    updateCounters();
+                    updateCounters(this);
                     updateMarkdownPreview();
                 }
             }
 
             renderDropdown() {
                 const dropdownMenu = document.getElementById('dropdownMenu');
+
+                // Modal header
+                const modalHeader = `
+                    <div style="padding: 1.5rem; border-bottom: 1px solid #4b5563; display: flex; align-items: center; justify-content: space-between; background-color: #1f2937; border-radius: 12px 12px 0 0;">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin: 0;">Manage Tabs</h3>
+                        <button id="closeTabModal" style="padding: 0.5rem; color: #9ca3af; hover:color: #e5e7eb; background: none; border: none; cursor: pointer; border-radius: 6px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
 
                 // Render tab items
                 const tabItems = this.tabs.map(tab => `
@@ -524,13 +630,27 @@
                     </div>
                 `;
 
-                dropdownMenu.innerHTML = tabItems + newTabButton;
+                dropdownMenu.innerHTML = modalHeader + tabItems + newTabButton;
+
+                // Update tab badge count
+                const tabBadge = document.getElementById('tabBadge');
+                if (tabBadge) {
+                    tabBadge.textContent = this.tabs.length;
+                }
 
                 // Attach event listeners
                 this.attachDropdownListeners();
             }
 
             attachDropdownListeners() {
+                // Close button in modal header
+                const closeBtn = document.getElementById('closeTabModal');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        closeDropdown();
+                    });
+                }
+
                 // Tab click to switch
                 document.querySelectorAll('.dropdown-item:not(.new-tab)').forEach(item => {
                     item.addEventListener('click', (e) => {
@@ -584,32 +704,29 @@
         const markdownToggle = document.getElementById('markdownToggle');
         const charCount = document.getElementById('charCount');
         const wordCount = document.getElementById('wordCount');
-        const dropdownButton = document.getElementById('dropdownButton');
+        const floatingTabButton = document.getElementById('floatingTabButton');
+        const tabModalBackdrop = document.getElementById('tabModalBackdrop');
         const dropdownMenu = document.getElementById('dropdownMenu');
-        const chevron = document.getElementById('chevron');
-        const currentTabName = document.getElementById('currentTabName');
         const renameModal = document.getElementById('renameModal');
         const renameInput = document.getElementById('renameInput');
         const confirmRenameBtn = document.getElementById('confirmRenameBtn');
         const cancelRenameBtn = document.getElementById('cancelRenameBtn');
+        const goalModal = document.getElementById('goalModal');
+        const goalSettingsBtn = document.getElementById('goalSettingsBtn');
+        const charGoalInput = document.getElementById('charGoalInput');
+        const wordGoalInput = document.getElementById('wordGoalInput');
+        const confirmGoalBtn = document.getElementById('confirmGoalBtn');
+        const cancelGoalBtn = document.getElementById('cancelGoalBtn');
         let saveTimeout;
         let isPreviewMode = false;
         let currentRenameTabId = null;
 
         const tabManager = new TabManager();
 
-        // Update current tab name display
-        function updateCurrentTabName() {
-            const activeTab = tabManager.getActiveTab();
-            if (activeTab) {
-                currentTabName.textContent = activeTab.title;
-            }
-        }
-
-        // Dropdown toggle
-        dropdownButton.addEventListener('click', (e) => {
+        // Tab modal toggle
+        floatingTabButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            const isActive = dropdownMenu.classList.contains('active');
+            const isActive = tabModalBackdrop.classList.contains('active');
             if (isActive) {
                 closeDropdown();
             } else {
@@ -618,27 +735,16 @@
         });
 
         function openDropdown() {
-            // Calculate position based on button location
-            const rect = dropdownButton.getBoundingClientRect();
-            const top = rect.bottom + 8;
-            const left = rect.right - 280;
-
-            dropdownMenu.style.top = top + 'px';
-            dropdownMenu.style.left = left + 'px';
-            dropdownMenu.style.right = 'auto';
-
-            dropdownMenu.classList.add('active');
-            chevron.classList.add('rotated');
+            tabModalBackdrop.classList.add('active');
         }
 
         function closeDropdown() {
-            dropdownMenu.classList.remove('active');
-            chevron.classList.remove('rotated');
+            tabModalBackdrop.classList.remove('active');
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        // Close modal when clicking backdrop
+        tabModalBackdrop.addEventListener('click', (e) => {
+            if (e.target === tabModalBackdrop) {
                 closeDropdown();
             }
         });
@@ -678,7 +784,10 @@
                     renameModal.classList.remove('active');
                     currentRenameTabId = null;
                 }
-                if (dropdownMenu.classList.contains('active')) {
+                if (goalModal.classList.contains('active')) {
+                    goalModal.classList.remove('active');
+                }
+                if (tabModalBackdrop.classList.contains('active')) {
                     closeDropdown();
                 }
             }
@@ -691,16 +800,111 @@
             }
         });
 
+        // Goal settings modal functions
+        goalSettingsBtn.addEventListener('click', () => {
+            const activeTab = tabManager.getActiveTab();
+            if (activeTab) {
+                charGoalInput.value = activeTab.charGoal || '';
+                wordGoalInput.value = activeTab.wordGoal || '';
+                goalModal.classList.add('active');
+                setTimeout(() => charGoalInput.focus(), 100);
+            }
+        });
+
+        confirmGoalBtn.addEventListener('click', () => {
+            const charGoal = parseInt(charGoalInput.value) || 0;
+            const wordGoal = parseInt(wordGoalInput.value) || 0;
+            tabManager.setGoals(tabManager.activeTabId, charGoal, wordGoal);
+            goalModal.classList.remove('active');
+        });
+
+        cancelGoalBtn.addEventListener('click', () => {
+            goalModal.classList.remove('active');
+        });
+
+        // Save goals on enter
+        charGoalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                confirmGoalBtn.click();
+            }
+        });
+
+        wordGoalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                confirmGoalBtn.click();
+            }
+        });
+
         // Update counters
-        function updateCounters() {
+        function updateCounters(manager = null) {
             const text = notepad.value;
+            const tm = manager || (typeof tabManager !== 'undefined' ? tabManager : null);
+            const activeTab = tm ? tm.getActiveTab() : null;
+            const charProgressBar = document.getElementById('charProgressBar');
+            const charProgress = document.getElementById('charProgress');
+            const wordProgressBar = document.getElementById('wordProgressBar');
+            const wordProgress = document.getElementById('wordProgress');
 
             // Character count
-            charCount.textContent = text.length.toLocaleString();
+            const chars = text.length;
+            if (activeTab && activeTab.charGoal) {
+                const percentage = Math.min((chars / activeTab.charGoal) * 100, 100);
+                charCount.textContent = `${chars.toLocaleString()} / ${activeTab.charGoal.toLocaleString()}`;
+
+                // Show and update progress bar
+                charProgress.classList.remove('hidden');
+                charProgressBar.style.width = `${percentage}%`;
+
+                // Color based on progress
+                if (percentage >= 100) {
+                    charCount.className = 'text-sm text-green-400 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-green-500 transition-all duration-300';
+                } else if (percentage >= 75) {
+                    charCount.className = 'text-sm text-blue-400 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-blue-500 transition-all duration-300';
+                } else if (percentage >= 50) {
+                    charCount.className = 'text-sm text-yellow-400 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-yellow-500 transition-all duration-300';
+                } else {
+                    charCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-gray-400 transition-all duration-300';
+                }
+            } else {
+                charCount.textContent = chars.toLocaleString();
+                charCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                charProgress.classList.add('hidden');
+            }
 
             // Word count
             const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-            wordCount.textContent = words.length.toLocaleString();
+            const wordCountValue = words.length;
+            if (activeTab && activeTab.wordGoal) {
+                const percentage = Math.min((wordCountValue / activeTab.wordGoal) * 100, 100);
+                wordCount.textContent = `${wordCountValue.toLocaleString()} / ${activeTab.wordGoal.toLocaleString()}`;
+
+                // Show and update progress bar
+                wordProgress.classList.remove('hidden');
+                wordProgressBar.style.width = `${percentage}%`;
+
+                // Color based on progress
+                if (percentage >= 100) {
+                    wordCount.className = 'text-sm text-green-400 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-green-500 transition-all duration-300';
+                } else if (percentage >= 75) {
+                    wordCount.className = 'text-sm text-blue-400 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-blue-500 transition-all duration-300';
+                } else if (percentage >= 50) {
+                    wordCount.className = 'text-sm text-yellow-400 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-yellow-500 transition-all duration-300';
+                } else {
+                    wordCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-gray-400 transition-all duration-300';
+                }
+            } else {
+                wordCount.textContent = wordCountValue.toLocaleString();
+                wordCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                wordProgress.classList.add('hidden');
+            }
         }
 
         // Update markdown preview
@@ -779,9 +983,6 @@
         window.addEventListener('beforeunload', () => {
             tabManager.saveCurrentTabContent();
         });
-
-        // Initial setup
-        updateCurrentTabName();
     </script>
 </body>
 </html>
