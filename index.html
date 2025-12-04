@@ -818,7 +818,7 @@
         // Update counters
         function updateCounters() {
             const text = notepad.value;
-            const activeTab = tabManager.getActiveTab();
+            const activeTab = tabManager ? tabManager.getActiveTab() : null;
             const charProgressBar = document.getElementById('charProgressBar');
             const charProgress = document.getElementById('charProgress');
             const wordProgressBar = document.getElementById('wordProgressBar');
