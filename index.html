@@ -308,13 +308,38 @@
             min-width: 1.25rem;
             text-align: center;
         }
+
+        /* Focus Mode Styles */
+        body.focus-mode .counter-bar {
+            opacity: 0.15;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        body.focus-mode .counter-bar:hover {
+            opacity: 0.5;
+            pointer-events: auto;
+        }
+
+        body.focus-mode .floating-tab-button {
+            opacity: 0.15;
+            transition: opacity 0.3s ease;
+        }
+
+        body.focus-mode .floating-tab-button:hover {
+            opacity: 1;
+        }
+
+        .focus-mode-active {
+            color: #60a5fa !important;
+        }
     </style>
 </head>
 <body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
     <div class="w-full max-w-4xl h-[90vh] flex flex-col bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
 
         <!-- Counter Bar -->
-        <div class="flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
+        <div class="counter-bar flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
             <div class="flex items-center gap-8">
                 <!-- Character Counter -->
                 <div class="flex items-center gap-3">
@@ -357,11 +382,20 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- Markdown Toggle -->
-                <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
+                <!-- Focus Mode Toggle -->
+                <button id="focusModeToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800" title="Toggle Focus Mode (Ctrl+Shift+F)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6"></path>
+                    </svg>
+                    <span class="font-medium">Focus</span>
+                </button>
+
+                <!-- Markdown Toggle -->
+                <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                     <span class="font-medium">Preview</span>
                 </button>
@@ -717,8 +751,10 @@
         const wordGoalInput = document.getElementById('wordGoalInput');
         const confirmGoalBtn = document.getElementById('confirmGoalBtn');
         const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+        const focusModeToggle = document.getElementById('focusModeToggle');
         let saveTimeout;
         let isPreviewMode = false;
+        let isFocusMode = false;
         let currentRenameTabId = null;
 
         const tabManager = new TabManager();
@@ -777,8 +813,9 @@
             currentRenameTabId = null;
         });
 
-        // Close modal on escape
+        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
+            // Close modals on escape
             if (e.key === 'Escape') {
                 if (renameModal.classList.contains('active')) {
                     renameModal.classList.remove('active');
@@ -790,6 +827,12 @@
                 if (tabModalBackdrop.classList.contains('active')) {
                     closeDropdown();
                 }
+            }
+
+            // Toggle focus mode on Ctrl+Shift+F
+            if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+                e.preventDefault();
+                toggleFocusMode();
             }
         });
 
@@ -941,6 +984,25 @@
                 markdownToggle.querySelector('span').textContent = 'Preview';
             }
         });
+
+        // Focus Mode functionality
+        function toggleFocusMode() {
+            isFocusMode = !isFocusMode;
+            document.body.classList.toggle('focus-mode', isFocusMode);
+            focusModeToggle.classList.toggle('focus-mode-active', isFocusMode);
+            localStorage.setItem('focusMode', isFocusMode);
+        }
+
+        // Load focus mode state
+        const savedFocusMode = localStorage.getItem('focusMode');
+        if (savedFocusMode === 'true') {
+            isFocusMode = true;
+            document.body.classList.add('focus-mode');
+            focusModeToggle.classList.add('focus-mode-active');
+        }
+
+        // Focus mode toggle button
+        focusModeToggle.addEventListener('click', toggleFocusMode);
 
         // Update counters on input
         notepad.addEventListener('input', () => {
