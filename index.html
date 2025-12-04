@@ -28,13 +28,6 @@
             background: #6b7280;
         }
 
-        .tab-button {
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
         #markdownPreview {
             overflow-y: auto;
         }
@@ -107,27 +100,61 @@
             border-top: 1px solid #4b5563;
             margin: 2em 0;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            min-width: 150px;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-menu button {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            text-align: left;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-menu button:hover {
+            background-color: #4b5563;
+        }
+
+        .dropdown-menu button:first-child {
+            border-radius: 6px 6px 0 0;
+        }
+
+        .dropdown-menu button:last-child {
+            border-radius: 0 0 6px 6px;
+        }
     </style>
 </head>
 <body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
     <div class="w-full max-w-4xl h-[90vh] flex flex-col bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
-
-        <!-- Tab Bar -->
-        <div class="flex items-center gap-2 px-4 py-2 bg-gray-800 border-b border-gray-700 overflow-x-auto">
-            <div id="tabContainer" class="flex items-center gap-2 flex-1 overflow-x-auto">
-                <!-- Tabs will be inserted here -->
-            </div>
-            <div class="flex items-center gap-2 ml-auto flex-shrink-0">
-                <!-- Tab Dropdown -->
-                <select id="tabDropdown" class="bg-gray-700 text-gray-200 text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500">
-                    <!-- Options will be populated by JS -->
-                </select>
-                <!-- New Tab Button -->
-                <button id="newTabBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded text-sm font-medium transition-colors">
-                    + New Tab
-                </button>
-            </div>
-        </div>
 
         <!-- Counter Bar -->
         <div class="flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
@@ -156,6 +183,39 @@
             </div>
 
             <div class="flex items-center gap-4">
+                <!-- Tab Management -->
+                <div class="flex items-center gap-2 relative">
+                    <select id="tabDropdown" class="bg-gray-700 text-gray-200 text-sm rounded px-3 py-1.5 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500 min-w-[150px]">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                    <button id="tabActionsBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 p-1.5 rounded transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                        </svg>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div id="tabActionsMenu" class="dropdown-menu">
+                        <button id="newTabAction" class="text-gray-200 text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            New Tab
+                        </button>
+                        <button id="renameTabAction" class="text-gray-200 text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Rename Tab
+                        </button>
+                        <button id="deleteTabAction" class="text-red-400 text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Delete Tab
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Markdown Toggle -->
                 <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,6 +251,27 @@
         </div>
     </div>
 
+    <!-- Rename Modal -->
+    <div id="renameModal" class="modal">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-100 mb-4">Rename Tab</h3>
+            <input
+                type="text"
+                id="renameInput"
+                class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 mb-4"
+                placeholder="Enter tab name..."
+            />
+            <div class="flex justify-end gap-3">
+                <button id="cancelRenameBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors">
+                    Cancel
+                </button>
+                <button id="confirmRenameBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+                    Rename
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Tab Management
         class TabManager {
@@ -206,7 +287,7 @@
                     this.createTab();
                 } else {
                     this.activeTabId = this.tabs[0].id;
-                    this.renderTabs();
+                    this.renderDropdown();
                     this.loadActiveTab();
                 }
             }
@@ -236,7 +317,7 @@
                 this.tabs.push(newTab);
                 this.activeTabId = newTab.id;
                 this.saveTabs();
-                this.renderTabs();
+                this.renderDropdown();
                 this.loadActiveTab();
             }
 
@@ -245,17 +326,22 @@
                 this.saveCurrentTabContent();
                 this.activeTabId = tabId;
                 this.saveTabs();
-                this.renderTabs();
+                this.renderDropdown();
                 this.loadActiveTab();
             }
 
-            closeTab(tabId) {
-                if (this.tabs.length === 1) {
-                    // Don't close the last tab, just clear it
-                    this.tabs[0].content = '';
-                    this.tabs[0].title = 'Note 1';
+            renameTab(tabId, newTitle) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (tab && newTitle.trim()) {
+                    tab.title = newTitle.trim();
                     this.saveTabs();
-                    this.loadActiveTab();
+                    this.renderDropdown();
+                }
+            }
+
+            deleteTab(tabId) {
+                if (this.tabs.length === 1) {
+                    alert('Cannot delete the last tab');
                     return;
                 }
 
@@ -269,7 +355,7 @@
                 }
 
                 this.saveTabs();
-                this.renderTabs();
+                this.renderDropdown();
                 this.loadActiveTab();
             }
 
@@ -277,11 +363,6 @@
                 const activeTab = this.tabs.find(t => t.id === this.activeTabId);
                 if (activeTab) {
                     activeTab.content = notepad.value;
-                    // Auto-generate title from first line
-                    const firstLine = notepad.value.split('\n')[0].trim();
-                    if (firstLine) {
-                        activeTab.title = firstLine.substring(0, 20) + (firstLine.length > 20 ? '...' : '');
-                    }
                     this.saveTabs();
                 }
             }
@@ -295,23 +376,8 @@
                 }
             }
 
-            renderTabs() {
-                const tabContainer = document.getElementById('tabContainer');
+            renderDropdown() {
                 const tabDropdown = document.getElementById('tabDropdown');
-
-                // Render tab buttons
-                tabContainer.innerHTML = this.tabs.map(tab => `
-                    <div class="flex items-center gap-1 bg-gray-700 ${tab.id === this.activeTabId ? 'ring-1 ring-gray-500' : ''} rounded px-3 py-1 flex-shrink-0">
-                        <button class="tab-button text-sm text-gray-200 hover:text-white transition-colors" data-tab-id="${tab.id}">
-                            ${tab.title}
-                        </button>
-                        <button class="close-tab text-gray-400 hover:text-red-400 transition-colors ml-1" data-tab-id="${tab.id}">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                `).join('');
 
                 // Render dropdown options
                 tabDropdown.innerHTML = this.tabs.map(tab => `
@@ -319,22 +385,10 @@
                         ${tab.title}
                     </option>
                 `).join('');
+            }
 
-                // Attach event listeners
-                document.querySelectorAll('.tab-button').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const tabId = e.target.getAttribute('data-tab-id');
-                        this.switchTab(tabId);
-                    });
-                });
-
-                document.querySelectorAll('.close-tab').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const tabId = e.target.closest('button').getAttribute('data-tab-id');
-                        this.closeTab(tabId);
-                    });
-                });
+            getActiveTab() {
+                return this.tabs.find(t => t.id === this.activeTabId);
             }
         }
 
@@ -344,8 +398,16 @@
         const markdownToggle = document.getElementById('markdownToggle');
         const charCount = document.getElementById('charCount');
         const wordCount = document.getElementById('wordCount');
-        const newTabBtn = document.getElementById('newTabBtn');
         const tabDropdown = document.getElementById('tabDropdown');
+        const tabActionsBtn = document.getElementById('tabActionsBtn');
+        const tabActionsMenu = document.getElementById('tabActionsMenu');
+        const renameModal = document.getElementById('renameModal');
+        const renameInput = document.getElementById('renameInput');
+        const confirmRenameBtn = document.getElementById('confirmRenameBtn');
+        const cancelRenameBtn = document.getElementById('cancelRenameBtn');
+        const newTabAction = document.getElementById('newTabAction');
+        const renameTabAction = document.getElementById('renameTabAction');
+        const deleteTabAction = document.getElementById('deleteTabAction');
         let saveTimeout;
         let isPreviewMode = false;
 
@@ -398,12 +460,79 @@
             }
         });
 
-        // New tab button
-        newTabBtn.addEventListener('click', () => {
-            tabManager.createTab();
+        // Tab actions menu toggle
+        tabActionsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            tabActionsMenu.classList.toggle('active');
+
+            // Position the menu
+            const rect = tabActionsBtn.getBoundingClientRect();
+            tabActionsMenu.style.top = (rect.bottom + 5) + 'px';
+            tabActionsMenu.style.left = (rect.left - 100) + 'px';
         });
 
-        // Tab dropdown
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!tabActionsMenu.contains(e.target) && e.target !== tabActionsBtn) {
+                tabActionsMenu.classList.remove('active');
+            }
+        });
+
+        // New tab action
+        newTabAction.addEventListener('click', () => {
+            tabManager.createTab();
+            tabActionsMenu.classList.remove('active');
+        });
+
+        // Rename tab action
+        renameTabAction.addEventListener('click', () => {
+            const activeTab = tabManager.getActiveTab();
+            if (activeTab) {
+                renameInput.value = activeTab.title;
+                renameModal.classList.add('active');
+                renameInput.focus();
+                renameInput.select();
+            }
+            tabActionsMenu.classList.remove('active');
+        });
+
+        // Delete tab action
+        deleteTabAction.addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete this tab?')) {
+                tabManager.deleteTab(tabManager.activeTabId);
+            }
+            tabActionsMenu.classList.remove('active');
+        });
+
+        // Rename modal confirm
+        confirmRenameBtn.addEventListener('click', () => {
+            const newTitle = renameInput.value.trim();
+            if (newTitle) {
+                tabManager.renameTab(tabManager.activeTabId, newTitle);
+                renameModal.classList.remove('active');
+            }
+        });
+
+        // Rename modal cancel
+        cancelRenameBtn.addEventListener('click', () => {
+            renameModal.classList.remove('active');
+        });
+
+        // Close modal on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && renameModal.classList.contains('active')) {
+                renameModal.classList.remove('active');
+            }
+        });
+
+        // Rename on enter
+        renameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                confirmRenameBtn.click();
+            }
+        });
+
+        // Tab dropdown change
         tabDropdown.addEventListener('change', (e) => {
             tabManager.switchTab(e.target.value);
         });
