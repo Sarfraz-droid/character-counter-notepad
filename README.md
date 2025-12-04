@@ -6,11 +6,13 @@ A sleek, dark-themed notepad app with real-time character and word counters buil
 
 - 🔤 **Character Counter** - Real-time character count with icons
 - 📝 **Word Counter** - Real-time word count with icons
-- 💾 **Auto-Save** - Content automatically saved to browser's local storage
+- 💾 **Auto-Save** - Content automatically saved with visual indicator
 - 🎨 **Dark Theme** - Beautiful dark minimalist design
 - 📱 **Responsive** - Works seamlessly on desktop and mobile devices
 - ✨ **Custom Scrollbar** - Styled scrollbar matching the dark theme
 - 🎯 **Focus Indicator** - Subtle ring effect on focus
+- ⌨️ **Monospace Font** - Perfect for code and structured text
+- ⭾ **Tab Support** - Tab key inserts actual tabs instead of changing focus
 
 ## Usage
 
