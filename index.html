@@ -315,18 +315,20 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 3rem;
-            background-color: #1f2937;
-            color: #6b7280;
-            padding: 1.5rem 0.5rem;
+            width: 2.5rem;
+            background-color: transparent;
+            color: #4b5563;
+            padding: 1.5rem 0.25rem 1.5rem 0;
             font-family: monospace;
             font-size: 1rem;
-            line-height: 1.75rem;
+            line-height: 1.625rem;
             text-align: right;
             user-select: none;
             overflow: hidden;
-            border-right: 1px solid #374151;
+            border-right: 1px solid #2d3748;
             display: none;
+            z-index: 10;
+            pointer-events: none;
         }
 
         #lineNumbers.active {
@@ -338,11 +340,18 @@
         }
 
         #notepad.with-line-numbers {
-            padding-left: 4rem;
+            padding-left: 3.5rem;
         }
 
         #markdownPreview.with-line-numbers {
-            padding-left: 4rem;
+            padding-left: 3.5rem;
+        }
+
+        @media (min-width: 768px) {
+            #lineNumbers {
+                font-size: 1.125rem;
+                line-height: 1.625rem;
+            }
         }
     </style>
 </head>
