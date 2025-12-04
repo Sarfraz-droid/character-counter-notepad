@@ -501,7 +501,7 @@
                 this.renderDropdown();
                 this.loadActiveTab();
                 updateCurrentTabName();
-                updateCounters();
+                updateCounters(this);
             }
 
             setGoals(tabId, charGoal, wordGoal) {
@@ -510,7 +510,7 @@
                     tab.charGoal = charGoal > 0 ? charGoal : null;
                     tab.wordGoal = wordGoal > 0 ? wordGoal : null;
                     this.saveTabs();
-                    updateCounters();
+                    updateCounters(this);
                 }
             }
 
@@ -567,7 +567,7 @@
                 const activeTab = this.tabs.find(t => t.id === this.activeTabId);
                 if (activeTab) {
                     notepad.value = activeTab.content;
-                    updateCounters();
+                    updateCounters(this);
                     updateMarkdownPreview();
                 }
             }
@@ -816,9 +816,10 @@
         });
 
         // Update counters
-        function updateCounters() {
+        function updateCounters(manager = null) {
             const text = notepad.value;
-            const activeTab = tabManager ? tabManager.getActiveTab() : null;
+            const tm = manager || (typeof tabManager !== 'undefined' ? tabManager : null);
+            const activeTab = tm ? tm.getActiveTab() : null;
             const charProgressBar = document.getElementById('charProgressBar');
             const charProgress = document.getElementById('charProgress');
             const wordProgressBar = document.getElementById('wordProgressBar');
