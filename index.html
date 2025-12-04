@@ -147,9 +147,18 @@
             cursor: pointer;
             transition: all 0.2s ease;
             min-width: 200px;
+            max-width: 280px;
             justify-content: space-between;
             position: relative;
             z-index: 201;
+        }
+
+        #currentTabName {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 0;
         }
 
         .dropdown-button:hover {
