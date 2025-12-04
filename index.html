@@ -132,6 +132,7 @@
 
         .custom-dropdown {
             position: relative;
+            z-index: 200;
         }
 
         .dropdown-button {
@@ -147,6 +148,8 @@
             transition: all 0.2s ease;
             min-width: 200px;
             justify-content: space-between;
+            position: relative;
+            z-index: 201;
         }
 
         .dropdown-button:hover {
@@ -154,9 +157,7 @@
         }
 
         .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 0.5rem);
-            right: 0;
+            position: fixed;
             background-color: #374151;
             border: 1px solid #4b5563;
             border-radius: 8px;
@@ -164,16 +165,19 @@
             min-width: 280px;
             max-height: 400px;
             overflow-y: auto;
-            z-index: 100;
+            z-index: 9999;
+            visibility: hidden;
             opacity: 0;
-            transform: translateY(-10px);
+            transform: scale(0.95);
+            transform-origin: top right;
             pointer-events: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .dropdown-menu.active {
+            visibility: visible;
             opacity: 1;
-            transform: translateY(0);
+            transform: scale(1);
             pointer-events: all;
         }
 
@@ -317,9 +321,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div class="dropdown-menu" id="dropdownMenu">
-                        <!-- Tabs will be inserted here -->
-                    </div>
                 </div>
 
                 <!-- Markdown Toggle -->
@@ -355,6 +356,11 @@
             <div id="markdownPreview" class="absolute inset-0 w-full h-full bg-gray-900 text-gray-100 px-8 py-6 text-base md:text-lg leading-relaxed hidden">
             </div>
         </div>
+    </div>
+
+    <!-- Dropdown Menu (at body level) -->
+    <div class="dropdown-menu" id="dropdownMenu">
+        <!-- Tabs will be inserted here -->
     </div>
 
     <!-- Rename Modal -->
@@ -612,6 +618,15 @@
         });
 
         function openDropdown() {
+            // Calculate position based on button location
+            const rect = dropdownButton.getBoundingClientRect();
+            const top = rect.bottom + 8;
+            const left = rect.right - 280;
+
+            dropdownMenu.style.top = top + 'px';
+            dropdownMenu.style.left = left + 'px';
+            dropdownMenu.style.right = 'auto';
+
             dropdownMenu.classList.add('active');
             chevron.classList.add('rotated');
         }
