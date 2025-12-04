@@ -130,42 +130,60 @@
             transform: scale(1);
         }
 
-        .dropdown-menu {
+        /* Tab Modal */
+        .tab-modal-backdrop {
             position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9998;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .tab-modal-backdrop.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .dropdown-menu {
             background-color: #374151;
             border: 1px solid #4b5563;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            min-width: 280px;
-            max-height: 400px;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            width: 90%;
+            max-width: 480px;
+            max-height: 70vh;
             overflow-y: auto;
             z-index: 9999;
-            visibility: hidden;
+            transform: scale(0.9);
             opacity: 0;
-            transform: scale(0.95);
-            transform-origin: top right;
-            pointer-events: none;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .dropdown-menu.active {
-            visibility: visible;
-            opacity: 1;
+        .tab-modal-backdrop.active .dropdown-menu {
             transform: scale(1);
-            pointer-events: all;
+            opacity: 1;
         }
 
         .dropdown-menu::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         .dropdown-menu::-webkit-scrollbar-track {
             background: #1f2937;
+            border-radius: 0 12px 12px 0;
         }
 
         .dropdown-menu::-webkit-scrollbar-thumb {
             background: #4b5563;
-            border-radius: 3px;
+            border-radius: 4px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
         }
 
         .dropdown-item {
@@ -374,9 +392,11 @@
         </div>
     </div>
 
-    <!-- Dropdown Menu (at body level) -->
-    <div class="dropdown-menu" id="dropdownMenu">
-        <!-- Tabs will be inserted here -->
+    <!-- Tab Modal (at body level) -->
+    <div class="tab-modal-backdrop" id="tabModalBackdrop">
+        <div class="dropdown-menu" id="dropdownMenu">
+            <!-- Tabs will be inserted here -->
+        </div>
     </div>
 
     <!-- Floating Tab Button -->
@@ -569,6 +589,18 @@
             renderDropdown() {
                 const dropdownMenu = document.getElementById('dropdownMenu');
 
+                // Modal header
+                const modalHeader = `
+                    <div style="padding: 1.5rem; border-bottom: 1px solid #4b5563; display: flex; align-items: center; justify-content: space-between; background-color: #1f2937; border-radius: 12px 12px 0 0;">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin: 0;">Manage Tabs</h3>
+                        <button id="closeTabModal" style="padding: 0.5rem; color: #9ca3af; hover:color: #e5e7eb; background: none; border: none; cursor: pointer; border-radius: 6px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+
                 // Render tab items
                 const tabItems = this.tabs.map(tab => `
                     <div class="dropdown-item ${tab.id === this.activeTabId ? 'active' : ''}" data-tab-id="${tab.id}">
@@ -598,7 +630,7 @@
                     </div>
                 `;
 
-                dropdownMenu.innerHTML = tabItems + newTabButton;
+                dropdownMenu.innerHTML = modalHeader + tabItems + newTabButton;
 
                 // Update tab badge count
                 const tabBadge = document.getElementById('tabBadge');
@@ -611,6 +643,14 @@
             }
 
             attachDropdownListeners() {
+                // Close button in modal header
+                const closeBtn = document.getElementById('closeTabModal');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        closeDropdown();
+                    });
+                }
+
                 // Tab click to switch
                 document.querySelectorAll('.dropdown-item:not(.new-tab)').forEach(item => {
                     item.addEventListener('click', (e) => {
@@ -665,6 +705,7 @@
         const charCount = document.getElementById('charCount');
         const wordCount = document.getElementById('wordCount');
         const floatingTabButton = document.getElementById('floatingTabButton');
+        const tabModalBackdrop = document.getElementById('tabModalBackdrop');
         const dropdownMenu = document.getElementById('dropdownMenu');
         const renameModal = document.getElementById('renameModal');
         const renameInput = document.getElementById('renameInput');
@@ -682,10 +723,10 @@
 
         const tabManager = new TabManager();
 
-        // Dropdown toggle
+        // Tab modal toggle
         floatingTabButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            const isActive = dropdownMenu.classList.contains('active');
+            const isActive = tabModalBackdrop.classList.contains('active');
             if (isActive) {
                 closeDropdown();
             } else {
@@ -694,25 +735,16 @@
         });
 
         function openDropdown() {
-            // Calculate position based on floating button location
-            const rect = floatingTabButton.getBoundingClientRect();
-            const top = rect.top - 400; // Position above the button
-            const left = rect.left - 280 + 28; // Align right edge with button
-
-            dropdownMenu.style.top = Math.max(20, top) + 'px';
-            dropdownMenu.style.left = left + 'px';
-            dropdownMenu.style.right = 'auto';
-
-            dropdownMenu.classList.add('active');
+            tabModalBackdrop.classList.add('active');
         }
 
         function closeDropdown() {
-            dropdownMenu.classList.remove('active');
+            tabModalBackdrop.classList.remove('active');
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!floatingTabButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        // Close modal when clicking backdrop
+        tabModalBackdrop.addEventListener('click', (e) => {
+            if (e.target === tabModalBackdrop) {
                 closeDropdown();
             }
         });
@@ -755,7 +787,7 @@
                 if (goalModal.classList.contains('active')) {
                     goalModal.classList.remove('active');
                 }
-                if (dropdownMenu.classList.contains('active')) {
+                if (tabModalBackdrop.classList.contains('active')) {
                     closeDropdown();
                 }
             }
