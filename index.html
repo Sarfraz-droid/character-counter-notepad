@@ -166,15 +166,18 @@
             max-height: 400px;
             overflow-y: auto;
             z-index: 9999;
+            visibility: hidden;
             opacity: 0;
-            transform: translateY(-10px);
+            transform: scale(0.95);
+            transform-origin: top right;
             pointer-events: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .dropdown-menu.active {
+            visibility: visible;
             opacity: 1;
-            transform: translateY(0);
+            transform: scale(1);
             pointer-events: all;
         }
 
@@ -615,8 +618,12 @@
         function openDropdown() {
             // Calculate position based on button location
             const rect = dropdownButton.getBoundingClientRect();
-            dropdownMenu.style.top = (rect.bottom + 8) + 'px';
-            dropdownMenu.style.left = (rect.right - 280) + 'px';
+            const top = rect.bottom + 8;
+            const left = rect.right - 280;
+
+            dropdownMenu.style.top = top + 'px';
+            dropdownMenu.style.left = left + 'px';
+            dropdownMenu.style.right = 'auto';
 
             dropdownMenu.classList.add('active');
             chevron.classList.add('rotated');
