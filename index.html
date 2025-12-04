@@ -67,7 +67,7 @@
             id="notepad"
             placeholder="Start typing..."
             autofocus
-            class="flex-1 w-full bg-gray-900 text-gray-100 placeholder-gray-600 px-8 py-6 text-base md:text-lg leading-relaxed resize-none outline-none focus:ring-0 font-light"
+            class="flex-1 w-full bg-gray-900 text-gray-100 placeholder-gray-600 px-8 py-6 text-base md:text-lg leading-relaxed resize-none outline-none focus:ring-0 font-mono"
         ></textarea>
     </div>
 
@@ -75,6 +75,7 @@
         const notepad = document.getElementById('notepad');
         const charCount = document.getElementById('charCount');
         const wordCount = document.getElementById('wordCount');
+        let saveTimeout;
 
         // Load saved content from localStorage
         const savedContent = localStorage.getItem('notepadContent');
@@ -94,11 +95,42 @@
             wordCount.textContent = words.length.toLocaleString();
         }
 
+        function showSavingIndicator() {
+            const indicator = document.querySelector('.flex.items-center.gap-2.text-xs');
+            indicator.classList.remove('text-gray-500');
+            indicator.classList.add('text-green-500');
+
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                indicator.classList.remove('text-green-500');
+                indicator.classList.add('text-gray-500');
+            }, 1000);
+        }
+
         // Update counters on input
         notepad.addEventListener('input', () => {
             updateCounters();
             // Save to localStorage
             localStorage.setItem('notepadContent', notepad.value);
+            showSavingIndicator();
+        });
+
+        // Handle tab key
+        notepad.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = notepad.selectionStart;
+                const end = notepad.selectionEnd;
+
+                // Insert tab character
+                notepad.value = notepad.value.substring(0, start) + '\t' + notepad.value.substring(end);
+
+                // Move cursor after tab
+                notepad.selectionStart = notepad.selectionEnd = start + 1;
+
+                // Trigger input event to save and update counters
+                notepad.dispatchEvent(new Event('input'));
+            }
         });
 
         // Add smooth focus effect
