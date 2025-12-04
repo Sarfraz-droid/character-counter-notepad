@@ -132,6 +132,7 @@
 
         .custom-dropdown {
             position: relative;
+            z-index: 200;
         }
 
         .dropdown-button {
@@ -147,6 +148,8 @@
             transition: all 0.2s ease;
             min-width: 200px;
             justify-content: space-between;
+            position: relative;
+            z-index: 201;
         }
 
         .dropdown-button:hover {
@@ -164,7 +167,7 @@
             min-width: 280px;
             max-height: 400px;
             overflow-y: auto;
-            z-index: 100;
+            z-index: 202;
             opacity: 0;
             transform: translateY(-10px);
             pointer-events: none;
