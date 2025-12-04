@@ -110,47 +110,173 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
         }
 
         .modal.active {
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 1;
         }
 
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            z-index: 100;
+        .modal-content {
+            transform: scale(0.9);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .custom-dropdown {
+            position: relative;
+        }
+
+        .dropdown-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
             background-color: #374151;
             border: 1px solid #4b5563;
             border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            min-width: 150px;
+            color: #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 200px;
+            justify-content: space-between;
         }
 
-        .dropdown-menu.active {
-            display: block;
-        }
-
-        .dropdown-menu button {
-            width: 100%;
-            padding: 0.5rem 1rem;
-            text-align: left;
-            transition: background-color 0.2s;
-        }
-
-        .dropdown-menu button:hover {
+        .dropdown-button:hover {
             background-color: #4b5563;
         }
 
-        .dropdown-menu button:first-child {
-            border-radius: 6px 6px 0 0;
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            min-width: 280px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .dropdown-menu button:last-child {
-            border-radius: 0 0 6px 6px;
+        .dropdown-menu.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
         }
+
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            color: #e5e7eb;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #4b5563;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #4b5563;
+        }
+
+        .dropdown-item.active {
+            background-color: #1f2937;
+        }
+
+        .dropdown-item.new-tab {
+            color: #60a5fa;
+            font-weight: 600;
+            border-top: 2px solid #4b5563;
+            background-color: #1f2937;
+        }
+
+        .dropdown-item.new-tab:hover {
+            background-color: #374151;
+        }
+
+        .tab-actions {
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .dropdown-item:hover .tab-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #6b7280;
+        }
+
+        .action-btn.delete:hover {
+            background-color: #dc2626;
+        }
+
+        .chevron {
+            transition: transform 0.25s ease;
+        }
+
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            animation: slideIn 0.2s ease forwards;
+        }
+
+        .dropdown-item:nth-child(1) { animation-delay: 0.02s; }
+        .dropdown-item:nth-child(2) { animation-delay: 0.04s; }
+        .dropdown-item:nth-child(3) { animation-delay: 0.06s; }
+        .dropdown-item:nth-child(4) { animation-delay: 0.08s; }
+        .dropdown-item:nth-child(5) { animation-delay: 0.10s; }
     </style>
 </head>
 <body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -183,36 +309,16 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- Tab Management -->
-                <div class="flex items-center gap-2 relative">
-                    <select id="tabDropdown" class="bg-gray-700 text-gray-200 text-sm rounded px-3 py-1.5 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500 min-w-[150px]">
-                        <!-- Options will be populated by JS -->
-                    </select>
-                    <button id="tabActionsBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 p-1.5 rounded transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                <!-- Custom Tab Dropdown -->
+                <div class="custom-dropdown">
+                    <button class="dropdown-button" id="dropdownButton">
+                        <span id="currentTabName">Note 1</span>
+                        <svg class="w-4 h-4 chevron" id="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <!-- Dropdown Menu -->
-                    <div id="tabActionsMenu" class="dropdown-menu">
-                        <button id="newTabAction" class="text-gray-200 text-sm flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            New Tab
-                        </button>
-                        <button id="renameTabAction" class="text-gray-200 text-sm flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                            Rename Tab
-                        </button>
-                        <button id="deleteTabAction" class="text-red-400 text-sm flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                            Delete Tab
-                        </button>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <!-- Tabs will be inserted here -->
                     </div>
                 </div>
 
@@ -253,12 +359,12 @@
 
     <!-- Rename Modal -->
     <div id="renameModal" class="modal">
-        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
+        <div class="modal-content bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
             <h3 class="text-xl font-semibold text-gray-100 mb-4">Rename Tab</h3>
             <input
                 type="text"
                 id="renameInput"
-                class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 mb-4"
+                class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
                 placeholder="Enter tab name..."
             />
             <div class="flex justify-end gap-3">
@@ -319,6 +425,7 @@
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
+                updateCurrentTabName();
             }
 
             switchTab(tabId) {
@@ -328,6 +435,7 @@
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
+                updateCurrentTabName();
             }
 
             renameTab(tabId, newTitle) {
@@ -336,6 +444,7 @@
                     tab.title = newTitle.trim();
                     this.saveTabs();
                     this.renderDropdown();
+                    updateCurrentTabName();
                 }
             }
 
@@ -357,6 +466,7 @@
                 this.saveTabs();
                 this.renderDropdown();
                 this.loadActiveTab();
+                updateCurrentTabName();
             }
 
             saveCurrentTabContent() {
@@ -377,14 +487,84 @@
             }
 
             renderDropdown() {
-                const tabDropdown = document.getElementById('tabDropdown');
+                const dropdownMenu = document.getElementById('dropdownMenu');
 
-                // Render dropdown options
-                tabDropdown.innerHTML = this.tabs.map(tab => `
-                    <option value="${tab.id}" ${tab.id === this.activeTabId ? 'selected' : ''}>
-                        ${tab.title}
-                    </option>
+                // Render tab items
+                const tabItems = this.tabs.map(tab => `
+                    <div class="dropdown-item ${tab.id === this.activeTabId ? 'active' : ''}" data-tab-id="${tab.id}">
+                        <span class="flex-1 truncate">${tab.title}</span>
+                        <div class="tab-actions">
+                            <button class="action-btn rename" data-tab-id="${tab.id}" title="Rename">
+                                <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button class="action-btn delete" data-tab-id="${tab.id}" title="Delete">
+                                <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 `).join('');
+
+                // Add new tab button
+                const newTabButton = `
+                    <div class="dropdown-item new-tab" id="newTabBtn">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>New Tab</span>
+                    </div>
+                `;
+
+                dropdownMenu.innerHTML = tabItems + newTabButton;
+
+                // Attach event listeners
+                this.attachDropdownListeners();
+            }
+
+            attachDropdownListeners() {
+                // Tab click to switch
+                document.querySelectorAll('.dropdown-item:not(.new-tab)').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        if (!e.target.closest('.action-btn')) {
+                            const tabId = item.getAttribute('data-tab-id');
+                            this.switchTab(tabId);
+                            closeDropdown();
+                        }
+                    });
+                });
+
+                // Rename buttons
+                document.querySelectorAll('.action-btn.rename').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const tabId = btn.getAttribute('data-tab-id');
+                        openRenameModal(tabId);
+                        closeDropdown();
+                    });
+                });
+
+                // Delete buttons
+                document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const tabId = btn.getAttribute('data-tab-id');
+                        if (confirm('Are you sure you want to delete this tab?')) {
+                            this.deleteTab(tabId);
+                        }
+                    });
+                });
+
+                // New tab button
+                const newTabBtn = document.getElementById('newTabBtn');
+                if (newTabBtn) {
+                    newTabBtn.addEventListener('click', () => {
+                        this.createTab();
+                        closeDropdown();
+                    });
+                }
             }
 
             getActiveTab() {
@@ -398,20 +578,103 @@
         const markdownToggle = document.getElementById('markdownToggle');
         const charCount = document.getElementById('charCount');
         const wordCount = document.getElementById('wordCount');
-        const tabDropdown = document.getElementById('tabDropdown');
-        const tabActionsBtn = document.getElementById('tabActionsBtn');
-        const tabActionsMenu = document.getElementById('tabActionsMenu');
+        const dropdownButton = document.getElementById('dropdownButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const chevron = document.getElementById('chevron');
+        const currentTabName = document.getElementById('currentTabName');
         const renameModal = document.getElementById('renameModal');
         const renameInput = document.getElementById('renameInput');
         const confirmRenameBtn = document.getElementById('confirmRenameBtn');
         const cancelRenameBtn = document.getElementById('cancelRenameBtn');
-        const newTabAction = document.getElementById('newTabAction');
-        const renameTabAction = document.getElementById('renameTabAction');
-        const deleteTabAction = document.getElementById('deleteTabAction');
         let saveTimeout;
         let isPreviewMode = false;
+        let currentRenameTabId = null;
 
         const tabManager = new TabManager();
+
+        // Update current tab name display
+        function updateCurrentTabName() {
+            const activeTab = tabManager.getActiveTab();
+            if (activeTab) {
+                currentTabName.textContent = activeTab.title;
+            }
+        }
+
+        // Dropdown toggle
+        dropdownButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = dropdownMenu.classList.contains('active');
+            if (isActive) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
+        });
+
+        function openDropdown() {
+            dropdownMenu.classList.add('active');
+            chevron.classList.add('rotated');
+        }
+
+        function closeDropdown() {
+            dropdownMenu.classList.remove('active');
+            chevron.classList.remove('rotated');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+
+        // Rename modal functions
+        function openRenameModal(tabId) {
+            currentRenameTabId = tabId;
+            const tab = tabManager.tabs.find(t => t.id === tabId);
+            if (tab) {
+                renameInput.value = tab.title;
+                renameModal.classList.add('active');
+                setTimeout(() => {
+                    renameInput.focus();
+                    renameInput.select();
+                }, 100);
+            }
+        }
+
+        confirmRenameBtn.addEventListener('click', () => {
+            const newTitle = renameInput.value.trim();
+            if (newTitle && currentRenameTabId) {
+                tabManager.renameTab(currentRenameTabId, newTitle);
+                renameModal.classList.remove('active');
+                currentRenameTabId = null;
+            }
+        });
+
+        cancelRenameBtn.addEventListener('click', () => {
+            renameModal.classList.remove('active');
+            currentRenameTabId = null;
+        });
+
+        // Close modal on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (renameModal.classList.contains('active')) {
+                    renameModal.classList.remove('active');
+                    currentRenameTabId = null;
+                }
+                if (dropdownMenu.classList.contains('active')) {
+                    closeDropdown();
+                }
+            }
+        });
+
+        // Rename on enter
+        renameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                confirmRenameBtn.click();
+            }
+        });
 
         // Update counters
         function updateCounters() {
@@ -460,83 +723,6 @@
             }
         });
 
-        // Tab actions menu toggle
-        tabActionsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            tabActionsMenu.classList.toggle('active');
-
-            // Position the menu
-            const rect = tabActionsBtn.getBoundingClientRect();
-            tabActionsMenu.style.top = (rect.bottom + 5) + 'px';
-            tabActionsMenu.style.left = (rect.left - 100) + 'px';
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!tabActionsMenu.contains(e.target) && e.target !== tabActionsBtn) {
-                tabActionsMenu.classList.remove('active');
-            }
-        });
-
-        // New tab action
-        newTabAction.addEventListener('click', () => {
-            tabManager.createTab();
-            tabActionsMenu.classList.remove('active');
-        });
-
-        // Rename tab action
-        renameTabAction.addEventListener('click', () => {
-            const activeTab = tabManager.getActiveTab();
-            if (activeTab) {
-                renameInput.value = activeTab.title;
-                renameModal.classList.add('active');
-                renameInput.focus();
-                renameInput.select();
-            }
-            tabActionsMenu.classList.remove('active');
-        });
-
-        // Delete tab action
-        deleteTabAction.addEventListener('click', () => {
-            if (confirm('Are you sure you want to delete this tab?')) {
-                tabManager.deleteTab(tabManager.activeTabId);
-            }
-            tabActionsMenu.classList.remove('active');
-        });
-
-        // Rename modal confirm
-        confirmRenameBtn.addEventListener('click', () => {
-            const newTitle = renameInput.value.trim();
-            if (newTitle) {
-                tabManager.renameTab(tabManager.activeTabId, newTitle);
-                renameModal.classList.remove('active');
-            }
-        });
-
-        // Rename modal cancel
-        cancelRenameBtn.addEventListener('click', () => {
-            renameModal.classList.remove('active');
-        });
-
-        // Close modal on escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && renameModal.classList.contains('active')) {
-                renameModal.classList.remove('active');
-            }
-        });
-
-        // Rename on enter
-        renameInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                confirmRenameBtn.click();
-            }
-        });
-
-        // Tab dropdown change
-        tabDropdown.addEventListener('change', (e) => {
-            tabManager.switchTab(e.target.value);
-        });
-
         // Update counters on input
         notepad.addEventListener('input', () => {
             updateCounters();
@@ -578,6 +764,9 @@
         window.addEventListener('beforeunload', () => {
             tabManager.saveCurrentTabContent();
         });
+
+        // Initial setup
+        updateCurrentTabName();
     </script>
 </body>
 </html>
