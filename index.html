@@ -4,93 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimalist Notepad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        textarea::-webkit-scrollbar {
+            width: 8px;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f5f5f5;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        textarea::-webkit-scrollbar-track {
+            background: #1f2937;
         }
 
-        .container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 800px;
-            height: 90vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        textarea::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
         }
 
-        .counter-bar {
-            display: flex;
-            gap: 30px;
-            padding: 16px 24px;
-            background: #fafafa;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .counter {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .counter-label {
-            font-weight: 500;
-        }
-
-        .counter-value {
-            color: #333;
-            font-weight: 600;
-        }
-
-        textarea {
-            flex: 1;
-            border: none;
-            padding: 24px;
-            font-size: 16px;
-            line-height: 1.6;
-            resize: none;
-            outline: none;
-            font-family: inherit;
-            color: #333;
-        }
-
-        textarea::placeholder {
-            color: #aaa;
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="counter-bar">
-            <div class="counter">
-                <span class="counter-label">Characters:</span>
-                <span class="counter-value" id="charCount">0</span>
+<body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
+    <div class="w-full max-w-4xl h-[90vh] flex flex-col bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
+
+        <!-- Counter Bar -->
+        <div class="flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
+            <div class="flex items-center gap-8">
+                <!-- Character Counter -->
+                <div class="flex items-center gap-3">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400 font-medium">Characters</span>
+                        <span class="text-sm text-gray-200 font-semibold tabular-nums" id="charCount">0</span>
+                    </div>
+                </div>
+
+                <!-- Word Counter -->
+                <div class="flex items-center gap-3">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400 font-medium">Words</span>
+                        <span class="text-sm text-gray-200 font-semibold tabular-nums" id="wordCount">0</span>
+                    </div>
+                </div>
             </div>
-            <div class="counter">
-                <span class="counter-label">Words:</span>
-                <span class="counter-value" id="wordCount">0</span>
+
+            <!-- Auto-save indicator -->
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-medium">Auto-saved</span>
             </div>
         </div>
+
+        <!-- Textarea -->
         <textarea
             id="notepad"
             placeholder="Start typing..."
             autofocus
+            class="flex-1 w-full bg-gray-900 text-gray-100 placeholder-gray-600 px-8 py-6 text-base md:text-lg leading-relaxed resize-none outline-none focus:ring-0 font-light"
         ></textarea>
     </div>
 
@@ -110,11 +87,11 @@
             const text = notepad.value;
 
             // Character count
-            charCount.textContent = text.length;
+            charCount.textContent = text.length.toLocaleString();
 
             // Word count
             const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-            wordCount.textContent = words.length;
+            wordCount.textContent = words.length.toLocaleString();
         }
 
         // Update counters on input
@@ -122,6 +99,15 @@
             updateCounters();
             // Save to localStorage
             localStorage.setItem('notepadContent', notepad.value);
+        });
+
+        // Add smooth focus effect
+        notepad.addEventListener('focus', () => {
+            notepad.parentElement.classList.add('ring-1', 'ring-gray-700');
+        });
+
+        notepad.addEventListener('blur', () => {
+            notepad.parentElement.classList.remove('ring-1', 'ring-gray-700');
         });
     </script>
 </body>
