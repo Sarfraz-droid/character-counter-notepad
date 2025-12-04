@@ -308,6 +308,42 @@
             min-width: 1.25rem;
             text-align: center;
         }
+
+        /* Line Numbers */
+        #lineNumbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3rem;
+            background-color: #1f2937;
+            color: #6b7280;
+            padding: 1.5rem 0.5rem;
+            font-family: monospace;
+            font-size: 1rem;
+            line-height: 1.75rem;
+            text-align: right;
+            user-select: none;
+            overflow: hidden;
+            border-right: 1px solid #374151;
+            display: none;
+        }
+
+        #lineNumbers.active {
+            display: block;
+        }
+
+        #lineNumbers::-webkit-scrollbar {
+            display: none;
+        }
+
+        #notepad.with-line-numbers {
+            padding-left: 4rem;
+        }
+
+        #markdownPreview.with-line-numbers {
+            padding-left: 4rem;
+        }
     </style>
 </head>
 <body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
@@ -378,6 +414,9 @@
 
         <!-- Editor/Preview Container -->
         <div class="flex-1 relative overflow-hidden">
+            <!-- Line Numbers -->
+            <div id="lineNumbers"></div>
+
             <!-- Textarea -->
             <textarea
                 id="notepad"
@@ -431,8 +470,8 @@
     <!-- Goal Settings Modal -->
     <div id="goalModal" class="modal">
         <div class="modal-content bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-100 mb-4">Set Goals for This Note</h3>
-            <p class="text-sm text-gray-400 mb-4">Set optional word and character count goals. Leave blank or set to 0 to remove a goal.</p>
+            <h3 class="text-xl font-semibold text-gray-100 mb-4">Settings</h3>
+            <p class="text-sm text-gray-400 mb-4">Configure your notepad preferences and goals.</p>
 
             <div class="space-y-4 mb-6">
                 <div>
@@ -456,6 +495,17 @@
                         placeholder="e.g., 200"
                     />
                 </div>
+
+                <div class="pt-2 border-t border-gray-700">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="lineNumbersToggle"
+                            class="w-4 h-4 bg-gray-700 border-gray-600 rounded focus:ring-2 focus:ring-blue-500 text-blue-600"
+                        />
+                        <span class="text-sm text-gray-300">Show line numbers</span>
+                    </label>
+                </div>
             </div>
 
             <div class="flex justify-end gap-3">
@@ -463,7 +513,7 @@
                     Cancel
                 </button>
                 <button id="confirmGoalBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
-                    Save Goals
+                    Save Settings
                 </button>
             </div>
         </div>
@@ -717,11 +767,57 @@
         const wordGoalInput = document.getElementById('wordGoalInput');
         const confirmGoalBtn = document.getElementById('confirmGoalBtn');
         const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+        const lineNumbers = document.getElementById('lineNumbers');
+        const lineNumbersToggle = document.getElementById('lineNumbersToggle');
         let saveTimeout;
         let isPreviewMode = false;
         let currentRenameTabId = null;
+        let showLineNumbers = false;
 
         const tabManager = new TabManager();
+
+        // Line Numbers Functions
+        function updateLineNumbers() {
+            if (!showLineNumbers) return;
+
+            const lines = notepad.value.split('\n');
+            const lineCount = lines.length;
+
+            let lineNumbersHTML = '';
+            for (let i = 1; i <= lineCount; i++) {
+                lineNumbersHTML += i + '\n';
+            }
+
+            lineNumbers.textContent = lineNumbersHTML;
+        }
+
+        function syncScroll() {
+            lineNumbers.scrollTop = notepad.scrollTop;
+        }
+
+        function toggleLineNumbers(enabled) {
+            showLineNumbers = enabled;
+            localStorage.setItem('showLineNumbers', enabled);
+
+            if (enabled) {
+                lineNumbers.classList.add('active');
+                notepad.classList.add('with-line-numbers');
+                markdownPreview.classList.add('with-line-numbers');
+                updateLineNumbers();
+            } else {
+                lineNumbers.classList.remove('active');
+                notepad.classList.remove('with-line-numbers');
+                markdownPreview.classList.remove('with-line-numbers');
+            }
+        }
+
+        function loadLineNumbersSetting() {
+            const saved = localStorage.getItem('showLineNumbers');
+            const enabled = saved === 'true';
+            showLineNumbers = enabled;
+            lineNumbersToggle.checked = enabled;
+            toggleLineNumbers(enabled);
+        }
 
         // Tab modal toggle
         floatingTabButton.addEventListener('click', (e) => {
@@ -806,6 +902,7 @@
             if (activeTab) {
                 charGoalInput.value = activeTab.charGoal || '';
                 wordGoalInput.value = activeTab.wordGoal || '';
+                lineNumbersToggle.checked = showLineNumbers;
                 goalModal.classList.add('active');
                 setTimeout(() => charGoalInput.focus(), 100);
             }
@@ -815,6 +912,7 @@
             const charGoal = parseInt(charGoalInput.value) || 0;
             const wordGoal = parseInt(wordGoalInput.value) || 0;
             tabManager.setGoals(tabManager.activeTabId, charGoal, wordGoal);
+            toggleLineNumbers(lineNumbersToggle.checked);
             goalModal.classList.remove('active');
         });
 
@@ -947,10 +1045,14 @@
             updateCounters();
             tabManager.saveCurrentTabContent();
             showSavingIndicator();
+            updateLineNumbers();
             if (isPreviewMode) {
                 updateMarkdownPreview();
             }
         });
+
+        // Sync line numbers scroll
+        notepad.addEventListener('scroll', syncScroll);
 
         // Handle tab key
         notepad.addEventListener('keydown', (e) => {
@@ -983,6 +1085,9 @@
         window.addEventListener('beforeunload', () => {
             tabManager.saveCurrentTabContent();
         });
+
+        // Load line numbers setting on startup
+        loadLineNumbersSetting();
     </script>
 </body>
 </html>
