@@ -19,8 +19,7 @@
 
         textarea::-webkit-scrollbar-thumb,
         #markdownPreview::-webkit-scrollbar-thumb {
-            background: #4b5563;
-            border-radius: 4px;
+            background: #525252;
         }
 
         textarea::-webkit-scrollbar-thumb:hover,
@@ -64,16 +63,14 @@
         }
 
         #markdownPreview code {
-            background-color: #374151;
+            background-color: #262626;
             padding: 0.2em 0.4em;
-            border-radius: 3px;
             font-family: monospace;
         }
 
         #markdownPreview pre {
-            background-color: #1f2937;
+            background-color: #171717;
             padding: 1em;
-            border-radius: 6px;
             overflow-x: auto;
             margin: 1em 0;
         }
@@ -91,7 +88,7 @@
         }
 
         #markdownPreview a {
-            color: #60a5fa;
+            color: #e5e7eb;
             text-decoration: underline;
         }
 
@@ -109,9 +106,9 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             opacity: 0;
-            transition: opacity 0.2s ease-in-out;
+            transition: opacity 0.4s ease-in-out;
         }
 
         .modal.active {
@@ -122,23 +119,25 @@
         }
 
         .modal-content {
-            transform: scale(0.9);
-            transition: transform 0.2s ease-in-out;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .modal.active .modal-content {
-            transform: scale(1);
+            transform: translateY(0);
+            opacity: 1;
         }
 
         /* Tab Modal */
         .tab-modal-backdrop {
             position: fixed;
             inset: 0;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             z-index: 9998;
             display: none;
             opacity: 0;
-            transition: opacity 0.2s ease-in-out;
+            transition: opacity 0.4s ease-in-out;
         }
 
         .tab-modal-backdrop.active {
@@ -149,22 +148,21 @@
         }
 
         .dropdown-menu {
-            background-color: #374151;
-            border: 1px solid #4b5563;
-            border-radius: 12px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            background-color: #171717;
+            border: 1px solid #404040;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             width: 90%;
             max-width: 480px;
             max-height: 70vh;
             overflow-y: auto;
             z-index: 9999;
-            transform: scale(0.9);
+            transform: scale(0.95) translateY(10px);
             opacity: 0;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .tab-modal-backdrop.active .dropdown-menu {
-            transform: scale(1);
+            transform: scale(1) translateY(0);
             opacity: 1;
         }
 
@@ -173,13 +171,11 @@
         }
 
         .dropdown-menu::-webkit-scrollbar-track {
-            background: #1f2937;
-            border-radius: 0 12px 12px 0;
+            background: #171717;
         }
 
         .dropdown-menu::-webkit-scrollbar-thumb {
-            background: #4b5563;
-            border-radius: 4px;
+            background: #525252;
         }
 
         .dropdown-menu::-webkit-scrollbar-thumb:hover {
@@ -190,11 +186,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 1rem;
-            color: #e5e7eb;
+            padding: 1rem 1.5rem;
+            color: #e5e5e5;
             cursor: pointer;
-            transition: all 0.15s ease;
-            border-bottom: 1px solid #4b5563;
+            transition: background-color 0.2s ease-in-out;
+            border-bottom: 1px solid #404040;
         }
 
         .dropdown-item:last-child {
@@ -210,7 +206,7 @@
         }
 
         .dropdown-item.new-tab {
-            color: #60a5fa;
+            color: #e5e7eb;
             font-weight: 600;
             border-top: 2px solid #4b5563;
             background-color: #1f2937;
@@ -232,9 +228,8 @@
         }
 
         .action-btn {
-            padding: 0.25rem;
-            border-radius: 4px;
-            transition: all 0.15s ease;
+            padding: 0.5rem;
+            transition: all 0.2s ease-in-out;
         }
 
         .action-btn:hover {
@@ -272,13 +267,12 @@
             bottom: 2rem;
             right: 2rem;
             z-index: 1000;
-            background-color: #3b82f6;
-            color: white;
+            background-color: #e5e7eb;
+            color: #030712;
             padding: 1rem;
-            border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -286,8 +280,8 @@
         }
 
         .floating-tab-button:hover {
-            background-color: #2563eb;
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
+            background-color: #ffffff;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
             transform: scale(1.05);
         }
 
@@ -299,22 +293,46 @@
             position: absolute;
             top: -4px;
             right: -4px;
-            background-color: #ef4444;
+            background-color: #111827;
             color: white;
             font-size: 0.75rem;
             font-weight: bold;
             padding: 0.125rem 0.375rem;
-            border-radius: 9999px;
             min-width: 1.25rem;
             text-align: center;
+            border: 1px solid #374151;
+        }
+
+        /* Focus Mode Overrides */
+        body.focus-mode {
+            padding: 0 !important;
+        }
+
+        body.focus-mode #appContainer {
+            max-width: 100vw !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        body.focus-mode #counterBar,
+        body.focus-mode #floatingTabButton {
+            opacity: 0.2;
+            transition: opacity 0.3s ease;
+        }
+
+        body.focus-mode #counterBar:hover,
+        body.focus-mode #floatingTabButton:hover {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
-    <div class="w-full max-w-4xl h-[90vh] flex flex-col bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
+<body class="bg-neutral-950 min-h-screen flex items-center justify-center p-4 md:p-8">
+    <div id="appContainer" class="w-full max-w-4xl h-[90vh] flex flex-col bg-neutral-900 shadow-2xl overflow-hidden border border-neutral-800">
 
         <!-- Counter Bar -->
-        <div class="flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
+        <div id="counterBar" class="flex items-center justify-between px-6 py-4 bg-neutral-900/50 border-b border-neutral-800/50 backdrop-blur-sm transition-all duration-300 ease-in-out">
             <div class="flex items-center gap-8">
                 <!-- Character Counter -->
                 <div class="flex items-center gap-3">
@@ -327,7 +345,7 @@
                             <span class="text-sm text-gray-200 font-semibold tabular-nums" id="charCount">0</span>
                         </div>
                         <div id="charProgress" class="hidden h-1 w-32 bg-gray-700 rounded-full overflow-hidden">
-                            <div id="charProgressBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                            <div id="charProgressBar" class="h-full bg-gray-400 transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -343,13 +361,13 @@
                             <span class="text-sm text-gray-200 font-semibold tabular-nums" id="wordCount">0</span>
                         </div>
                         <div id="wordProgress" class="hidden h-1 w-32 bg-gray-700 rounded-full overflow-hidden">
-                            <div id="wordProgressBar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                            <div id="wordProgressBar" class="h-full bg-gray-400 transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Goal Settings Button -->
-                <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-gray-400 hover:text-blue-400 transition-colors px-2 py-1.5 rounded hover:bg-gray-800" title="Set goals">
+                <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-100 transition-colors px-2 py-1.5 rounded hover:bg-gray-800" title="Set goals">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
@@ -357,6 +375,14 @@
             </div>
 
             <div class="flex items-center gap-4">
+                <!-- Focus Toggle -->
+                <button id="focusToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800" title="Toggle focus mode">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                    </svg>
+                    <span class="font-medium">Focus</span>
+                </button>
+
                 <!-- Markdown Toggle -->
                 <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -414,14 +440,14 @@
             <input
                 type="text"
                 id="renameInput"
-                class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 mb-4"
                 placeholder="Enter tab name..."
             />
             <div class="flex justify-end gap-3">
                 <button id="cancelRenameBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors">
                     Cancel
                 </button>
-                <button id="confirmRenameBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+                <button id="confirmRenameBtn" class="px-4 py-2 bg-gray-200 hover:bg-white text-gray-950 font-medium rounded transition-colors">
                     Rename
                 </button>
             </div>
@@ -441,7 +467,7 @@
                         type="number"
                         id="charGoalInput"
                         min="0"
-                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
                         placeholder="e.g., 1000"
                     />
                 </div>
@@ -452,7 +478,7 @@
                         type="number"
                         id="wordGoalInput"
                         min="0"
-                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full bg-gray-700 text-gray-100 px-4 py-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
                         placeholder="e.g., 200"
                     />
                 </div>
@@ -462,7 +488,7 @@
                 <button id="cancelGoalBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded transition-colors">
                     Cancel
                 </button>
-                <button id="confirmGoalBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+                <button id="confirmGoalBtn" class="px-4 py-2 bg-gray-200 hover:bg-white text-gray-950 font-medium rounded transition-colors">
                     Save Goals
                 </button>
             </div>
@@ -591,9 +617,9 @@
 
                 // Modal header
                 const modalHeader = `
-                    <div style="padding: 1.5rem; border-bottom: 1px solid #4b5563; display: flex; align-items: center; justify-content: space-between; background-color: #1f2937; border-radius: 12px 12px 0 0;">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin: 0;">Manage Tabs</h3>
-                        <button id="closeTabModal" style="padding: 0.5rem; color: #9ca3af; hover:color: #e5e7eb; background: none; border: none; cursor: pointer; border-radius: 6px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;">
+                    <div style="padding: 1.5rem; border-bottom: 1px solid #404040; display: flex; align-items: center; justify-content: space-between; background-color: #171717;">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: #e5e5e5; margin: 0;">Manage Tabs</h3>
+                        <button id="closeTabModal" style="padding: 0.5rem; color: #a3a3a3; hover:color: #e5e5e5; background: none; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -717,8 +743,12 @@
         const wordGoalInput = document.getElementById('wordGoalInput');
         const confirmGoalBtn = document.getElementById('confirmGoalBtn');
         const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+        const focusToggle = document.getElementById('focusToggle');
+        const appContainer = document.getElementById('appContainer');
+        const counterBar = document.getElementById('counterBar');
         let saveTimeout;
         let isPreviewMode = false;
+        let isFocusMode = false;
         let currentRenameTabId = null;
 
         const tabManager = new TabManager();
@@ -857,17 +887,17 @@
 
                 // Color based on progress
                 if (percentage >= 100) {
-                    charCount.className = 'text-sm text-green-400 font-semibold tabular-nums';
-                    charProgressBar.className = 'h-full bg-green-500 transition-all duration-300';
+                    charCount.className = 'text-sm text-white font-bold tabular-nums';
+                    charProgressBar.className = 'h-full bg-white transition-all duration-300';
                 } else if (percentage >= 75) {
-                    charCount.className = 'text-sm text-blue-400 font-semibold tabular-nums';
-                    charProgressBar.className = 'h-full bg-blue-500 transition-all duration-300';
-                } else if (percentage >= 50) {
-                    charCount.className = 'text-sm text-yellow-400 font-semibold tabular-nums';
-                    charProgressBar.className = 'h-full bg-yellow-500 transition-all duration-300';
-                } else {
                     charCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
-                    charProgressBar.className = 'h-full bg-gray-400 transition-all duration-300';
+                    charProgressBar.className = 'h-full bg-gray-300 transition-all duration-300';
+                } else if (percentage >= 50) {
+                    charCount.className = 'text-sm text-gray-300 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-gray-500 transition-all duration-300';
+                } else {
+                    charCount.className = 'text-sm text-gray-400 font-semibold tabular-nums';
+                    charProgressBar.className = 'h-full bg-gray-700 transition-all duration-300';
                 }
             } else {
                 charCount.textContent = chars.toLocaleString();
@@ -888,17 +918,17 @@
 
                 // Color based on progress
                 if (percentage >= 100) {
-                    wordCount.className = 'text-sm text-green-400 font-semibold tabular-nums';
-                    wordProgressBar.className = 'h-full bg-green-500 transition-all duration-300';
+                    wordCount.className = 'text-sm text-white font-bold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-white transition-all duration-300';
                 } else if (percentage >= 75) {
-                    wordCount.className = 'text-sm text-blue-400 font-semibold tabular-nums';
-                    wordProgressBar.className = 'h-full bg-blue-500 transition-all duration-300';
-                } else if (percentage >= 50) {
-                    wordCount.className = 'text-sm text-yellow-400 font-semibold tabular-nums';
-                    wordProgressBar.className = 'h-full bg-yellow-500 transition-all duration-300';
-                } else {
                     wordCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
-                    wordProgressBar.className = 'h-full bg-gray-400 transition-all duration-300';
+                    wordProgressBar.className = 'h-full bg-gray-300 transition-all duration-300';
+                } else if (percentage >= 50) {
+                    wordCount.className = 'text-sm text-gray-300 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-gray-500 transition-all duration-300';
+                } else {
+                    wordCount.className = 'text-sm text-gray-400 font-semibold tabular-nums';
+                    wordProgressBar.className = 'h-full bg-gray-700 transition-all duration-300';
                 }
             } else {
                 wordCount.textContent = wordCountValue.toLocaleString();
@@ -918,11 +948,11 @@
         function showSavingIndicator() {
             const indicator = document.querySelector('.flex.items-center.gap-2.text-xs.text-gray-500');
             indicator.classList.remove('text-gray-500');
-            indicator.classList.add('text-green-500');
+            indicator.classList.add('text-white');
 
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
-                indicator.classList.remove('text-green-500');
+                indicator.classList.remove('text-white');
                 indicator.classList.add('text-gray-500');
             }, 1000);
         }
@@ -982,6 +1012,22 @@
         // Save content before closing/refreshing
         window.addEventListener('beforeunload', () => {
             tabManager.saveCurrentTabContent();
+        });
+
+        // Focus Mode Toggle
+        focusToggle.addEventListener('click', () => {
+            isFocusMode = !isFocusMode;
+            document.body.classList.toggle('focus-mode');
+
+            if (isFocusMode) {
+                // Activate Focus Mode
+                focusToggle.classList.add('text-white');
+                focusToggle.querySelector('span').textContent = 'Exit Focus';
+            } else {
+                // Deactivate Focus Mode
+                focusToggle.classList.remove('text-white');
+                focusToggle.querySelector('span').textContent = 'Focus';
+            }
         });
     </script>
 </body>
