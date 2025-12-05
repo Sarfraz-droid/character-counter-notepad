@@ -308,13 +308,38 @@
             min-width: 1.25rem;
             text-align: center;
         }
+
+        /* Focus Mode Overrides */
+        body.focus-mode {
+            padding: 0 !important;
+        }
+
+        body.focus-mode #appContainer {
+            max-width: 100vw !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            border-radius: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        body.focus-mode #counterBar,
+        body.focus-mode #floatingTabButton {
+            opacity: 0.2;
+            transition: opacity 0.3s ease;
+        }
+
+        body.focus-mode #counterBar:hover,
+        body.focus-mode #floatingTabButton:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-950 min-h-screen flex items-center justify-center p-4 md:p-8">
-    <div class="w-full max-w-4xl h-[90vh] flex flex-col bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
+    <div id="appContainer" class="w-full max-w-4xl h-[90vh] flex flex-col bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
 
         <!-- Counter Bar -->
-        <div class="flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
+        <div id="counterBar" class="flex items-center justify-between px-6 py-4 bg-gray-800/50 border-b border-gray-700/50 backdrop-blur-sm">
             <div class="flex items-center gap-8">
                 <!-- Character Counter -->
                 <div class="flex items-center gap-3">
@@ -357,6 +382,14 @@
             </div>
 
             <div class="flex items-center gap-4">
+                <!-- Focus Toggle -->
+                <button id="focusToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800" title="Toggle focus mode">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                    </svg>
+                    <span class="font-medium">Focus</span>
+                </button>
+
                 <!-- Markdown Toggle -->
                 <button id="markdownToggle" class="flex items-center gap-2 text-xs text-gray-400 hover:text-gray-200 transition-colors px-3 py-1.5 rounded hover:bg-gray-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -717,8 +750,12 @@
         const wordGoalInput = document.getElementById('wordGoalInput');
         const confirmGoalBtn = document.getElementById('confirmGoalBtn');
         const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+        const focusToggle = document.getElementById('focusToggle');
+        const appContainer = document.getElementById('appContainer');
+        const counterBar = document.getElementById('counterBar');
         let saveTimeout;
         let isPreviewMode = false;
+        let isFocusMode = false;
         let currentRenameTabId = null;
 
         const tabManager = new TabManager();
@@ -982,6 +1019,22 @@
         // Save content before closing/refreshing
         window.addEventListener('beforeunload', () => {
             tabManager.saveCurrentTabContent();
+        });
+
+        // Focus Mode Toggle
+        focusToggle.addEventListener('click', () => {
+            isFocusMode = !isFocusMode;
+            document.body.classList.toggle('focus-mode');
+
+            if (isFocusMode) {
+                // Activate Focus Mode
+                focusToggle.classList.add('text-blue-400');
+                focusToggle.querySelector('span').textContent = 'Exit Focus';
+            } else {
+                // Deactivate Focus Mode
+                focusToggle.classList.remove('text-blue-400');
+                focusToggle.querySelector('span').textContent = 'Focus';
+            }
         });
     </script>
 </body>
