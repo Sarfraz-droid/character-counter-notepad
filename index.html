@@ -365,6 +365,24 @@
                     </div>
                 </div>
 
+                <!-- Timer -->
+                <div class="flex items-center gap-3">
+                    <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-neutral-500 font-medium">Time</span>
+                            <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="timerDisplay">00:00</span>
+                        </div>
+                    </div>
+                    <button id="timerToggleBtn" class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-white/10 text-neutral-400 hover:text-white transition-colors" title="Start/Stop Timer">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" id="timerIcon">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+
                 <!-- Goal Settings Button -->
                 <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-2 py-1.5 rounded hover:bg-white/5" title="Set goals">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1028,6 +1046,71 @@
                 focusToggle.querySelector('span').textContent = 'Focus';
             }
         });
+
+        // Timer Logic
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerToggleBtn = document.getElementById('timerToggleBtn');
+        const timerIcon = document.getElementById('timerIcon');
+
+        let timerInterval;
+        let timerSeconds = 0;
+        let isTimerRunning = false;
+
+        function formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const pad = (num) => num.toString().padStart(2, '0');
+
+            if (hours > 0) {
+                return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            }
+            return `${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        function updateTimerUI() {
+            if (timerDisplay) {
+                timerDisplay.textContent = formatTime(timerSeconds);
+            }
+        }
+
+        function toggleTimer() {
+            if (isTimerRunning) {
+                // Stop (Pause)
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+
+                // Change icon to Play
+                if (timerIcon) {
+                    timerIcon.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>';
+                }
+                if (timerToggleBtn) {
+                    timerToggleBtn.classList.remove('text-red-400', 'hover:text-red-300');
+                    timerToggleBtn.classList.add('text-neutral-400', 'hover:text-white');
+                }
+            } else {
+                // Start
+                isTimerRunning = true;
+                timerInterval = setInterval(() => {
+                    timerSeconds++;
+                    updateTimerUI();
+                }, 1000);
+
+                // Change icon to Stop/Pause
+                if (timerIcon) {
+                    timerIcon.innerHTML = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>';
+                }
+                if (timerToggleBtn) {
+                    timerToggleBtn.classList.remove('text-neutral-400', 'hover:text-white');
+                    timerToggleBtn.classList.add('text-red-400', 'hover:text-red-300');
+                }
+            }
+        }
+
+        if (timerToggleBtn) {
+            timerToggleBtn.addEventListener('click', toggleTimer);
+        }
     </script>
 </body>
 </html>
