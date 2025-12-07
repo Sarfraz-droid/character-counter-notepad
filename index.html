@@ -331,8 +331,8 @@
     <div id="appContainer" class="w-full max-w-4xl h-[90vh] flex flex-col bg-neutral-900/40 backdrop-blur-xl shadow-2xl overflow-hidden border border-white/10 transition-all duration-500 ease-in-out">
 
         <!-- Counter Bar -->
-        <div id="counterBar" class="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-transparent backdrop-blur-sm transition-all duration-300 ease-in-out">
-            <div class="flex items-center gap-8">
+        <div id="counterBar" class="flex items-center justify-between px-4 py-4 border-b border-white/5 bg-transparent backdrop-blur-sm transition-all duration-300 ease-in-out">
+            <div class="flex items-center gap-4">
                 <!-- Character Counter -->
                 <div class="flex items-center gap-3">
                     <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -340,8 +340,8 @@
                     </svg>
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center gap-2">
-                            <span class="text-sm text-neutral-500 font-medium">Characters</span>
-                            <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="charCount">0</span>
+                            <span class="text-xs text-neutral-500 font-medium">Characters</span>
+                            <span class="text-xs text-neutral-200 font-semibold tabular-nums tracking-wide whitespace-nowrap" id="charCount">0</span>
                         </div>
                         <div id="charProgress" class="hidden h-1 w-32 bg-neutral-800 rounded-full overflow-hidden">
                             <div id="charProgressBar" class="h-full bg-white transition-all duration-500 ease-out" style="width: 0%"></div>
@@ -356,8 +356,8 @@
                     </svg>
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center gap-2">
-                            <span class="text-sm text-neutral-500 font-medium">Words</span>
-                            <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="wordCount">0</span>
+                            <span class="text-xs text-neutral-500 font-medium">Words</span>
+                            <span class="text-xs text-neutral-200 font-semibold tabular-nums tracking-wide whitespace-nowrap" id="wordCount">0</span>
                         </div>
                         <div id="wordProgress" class="hidden h-1 w-32 bg-neutral-800 rounded-full overflow-hidden">
                             <div id="wordProgressBar" class="h-full bg-white transition-all duration-500 ease-out" style="width: 0%"></div>
@@ -372,8 +372,8 @@
                     </svg>
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center gap-2">
-                            <span class="text-sm text-neutral-500 font-medium">Time</span>
-                            <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="timerDisplay">00:00</span>
+                            <span class="text-xs text-neutral-500 font-medium">Time</span>
+                            <span class="text-xs text-neutral-200 font-semibold tabular-nums tracking-wide whitespace-nowrap" id="timerDisplay">00:00</span>
                         </div>
                     </div>
                     <button id="timerToggleBtn" class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-white/10 text-neutral-400 hover:text-white transition-colors" title="Start/Stop Timer">
@@ -909,21 +909,21 @@
 
                 // Color based on progress
                 if (percentage >= 100) {
-                    charCount.className = 'text-sm text-white font-bold tabular-nums';
+                    charCount.className = 'text-xs text-white font-bold tabular-nums whitespace-nowrap';
                     charProgressBar.className = 'h-full bg-white transition-all duration-300';
                 } else if (percentage >= 75) {
-                    charCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                    charCount.className = 'text-xs text-gray-200 font-semibold tabular-nums whitespace-nowrap';
                     charProgressBar.className = 'h-full bg-gray-300 transition-all duration-300';
                 } else if (percentage >= 50) {
-                    charCount.className = 'text-sm text-gray-300 font-semibold tabular-nums';
+                    charCount.className = 'text-xs text-gray-300 font-semibold tabular-nums whitespace-nowrap';
                     charProgressBar.className = 'h-full bg-gray-500 transition-all duration-300';
                 } else {
-                    charCount.className = 'text-sm text-gray-400 font-semibold tabular-nums';
+                    charCount.className = 'text-xs text-gray-400 font-semibold tabular-nums whitespace-nowrap';
                     charProgressBar.className = 'h-full bg-gray-700 transition-all duration-300';
                 }
             } else {
                 charCount.textContent = chars.toLocaleString();
-                charCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                charCount.className = 'text-xs text-gray-200 font-semibold tabular-nums whitespace-nowrap';
                 charProgress.classList.add('hidden');
             }
 
@@ -940,21 +940,21 @@
 
                 // Color based on progress
                 if (percentage >= 100) {
-                    wordCount.className = 'text-sm text-white font-bold tabular-nums';
+                    wordCount.className = 'text-xs text-white font-bold tabular-nums whitespace-nowrap';
                     wordProgressBar.className = 'h-full bg-white transition-all duration-300';
                 } else if (percentage >= 75) {
-                    wordCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                    wordCount.className = 'text-xs text-gray-200 font-semibold tabular-nums whitespace-nowrap';
                     wordProgressBar.className = 'h-full bg-gray-300 transition-all duration-300';
                 } else if (percentage >= 50) {
-                    wordCount.className = 'text-sm text-gray-300 font-semibold tabular-nums';
+                    wordCount.className = 'text-xs text-gray-300 font-semibold tabular-nums whitespace-nowrap';
                     wordProgressBar.className = 'h-full bg-gray-500 transition-all duration-300';
                 } else {
-                    wordCount.className = 'text-sm text-gray-400 font-semibold tabular-nums';
+                    wordCount.className = 'text-xs text-gray-400 font-semibold tabular-nums whitespace-nowrap';
                     wordProgressBar.className = 'h-full bg-gray-700 transition-all duration-300';
                 }
             } else {
                 wordCount.textContent = wordCountValue.toLocaleString();
-                wordCount.className = 'text-sm text-gray-200 font-semibold tabular-nums';
+                wordCount.className = 'text-xs text-gray-200 font-semibold tabular-nums whitespace-nowrap';
                 wordProgress.classList.add('hidden');
             }
         }
