@@ -323,107 +323,125 @@
     <div id="appContainer" class="w-full max-w-4xl h-[90vh] flex flex-col bg-black/40 backdrop-blur-2xl shadow-2xl overflow-hidden border border-white/5 transition-all duration-500 ease-in-out ring-1 ring-white/5">
 
         <!-- Counter Bar -->
-        <div id="counterBar" class="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-transparent backdrop-blur-sm transition-all duration-300 ease-in-out">
-            <div class="flex items-center gap-6">
-                 <!-- Tab Switcher -->
-                <button id="tabDropdownTrigger" class="flex items-center gap-2 px-3 py-1.5 -ml-2 rounded-lg hover:bg-white/10 transition-all duration-200 text-neutral-300 hover:text-white group focus:outline-none focus:ring-1 focus:ring-neutral-700" title="Switch notes">
-                    <span class="font-medium max-w-[150px] truncate text-sm" id="currentTabName">Note 1</span>
-                    <svg id="tabDropdownChevron" class="w-3.5 h-3.5 text-neutral-500 group-hover:text-white transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div class="h-4 w-px bg-white/10"></div>
+        <div id="counterBar" class="relative flex items-center px-6 py-4 border-b border-white/5 bg-transparent backdrop-blur-sm transition-all duration-300 ease-in-out group/bar">
 
-                <!-- Character Counter -->
-                <div class="flex items-center gap-3">
-                    <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="charCount">0</span>
-                        </div>
-                        <div id="charProgress" class="hidden h-1 w-32 bg-neutral-800 rounded-full overflow-hidden">
-                            <div id="charProgressBar" class="h-full bg-white transition-all duration-500 ease-out" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
+            <!-- Left Arrow -->
+            <button id="scrollLeftBtn" class="absolute left-0 z-10 h-full px-2 bg-gradient-to-r from-black/80 to-transparent hidden items-center justify-center text-neutral-400 hover:text-white transition-opacity">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
 
-                <!-- Word Counter -->
-                <div class="flex items-center gap-3">
-                    <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="wordCount">0</span>
-                        </div>
-                        <div id="wordProgress" class="hidden h-1 w-32 bg-neutral-800 rounded-full overflow-hidden">
-                            <div id="wordProgressBar" class="h-full bg-white transition-all duration-500 ease-out" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Timer -->
-                <div class="flex items-center gap-3">
-                    <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="timerDisplay">00:00</span>
-                        </div>
-                    </div>
-                    <button id="timerToggleBtn" class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-white/10 text-neutral-400 hover:text-white transition-colors" title="Start/Stop Timer">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" id="timerIcon">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+            <!-- Scrollable Content -->
+            <div id="counterBarScroll" class="flex-1 flex items-center justify-between overflow-x-auto scrollbar-hide">
+                <div class="flex items-center gap-6 shrink-0">
+                     <!-- Tab Switcher -->
+                    <button id="tabDropdownTrigger" class="flex items-center gap-2 px-3 py-1.5 -ml-2 rounded-lg hover:bg-white/10 transition-all duration-200 text-neutral-300 hover:text-white group focus:outline-none focus:ring-1 focus:ring-neutral-700" title="Switch notes">
+                        <span class="font-medium max-w-[150px] truncate text-sm" id="currentTabName">Note 1</span>
+                        <svg id="tabDropdownChevron" class="w-3.5 h-3.5 text-neutral-500 group-hover:text-white transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <button id="timerResetBtn" class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-white/10 text-neutral-400 hover:text-white transition-colors" title="Reset Timer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    <div class="h-4 w-px bg-white/10"></div>
+
+                    <!-- Character Counter -->
+                    <div class="flex items-center gap-3">
+                        <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="charCount">0</span>
+                            </div>
+                            <div id="charProgress" class="hidden h-1 w-32 bg-neutral-800 rounded-full overflow-hidden">
+                                <div id="charProgressBar" class="h-full bg-white transition-all duration-500 ease-out" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Word Counter -->
+                    <div class="flex items-center gap-3">
+                        <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="wordCount">0</span>
+                            </div>
+                            <div id="wordProgress" class="hidden h-1 w-32 bg-neutral-800 rounded-full overflow-hidden">
+                                <div id="wordProgressBar" class="h-full bg-white transition-all duration-500 ease-out" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timer -->
+                    <div class="flex items-center gap-3">
+                        <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-neutral-200 font-semibold tabular-nums tracking-wide" id="timerDisplay">00:00</span>
+                            </div>
+                        </div>
+                        <button id="timerToggleBtn" class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-white/10 text-neutral-400 hover:text-white transition-colors" title="Start/Stop Timer">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" id="timerIcon">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <button id="timerResetBtn" class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-white/10 text-neutral-400 hover:text-white transition-colors" title="Reset Timer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Goal Settings Button -->
+                    <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-2 py-1.5 rounded hover:bg-white/5" title="Set goals">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
                     </button>
                 </div>
 
-                <!-- Goal Settings Button -->
-                <button id="goalSettingsBtn" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-2 py-1.5 rounded hover:bg-white/5" title="Set goals">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                </button>
-            </div>
+                <div class="flex items-center gap-4 shrink-0">
+                    <!-- Floating Notes Toggle -->
+                    <button id="floatingNotesToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle floating notes">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                        </svg>
+                    </button>
 
-            <div class="flex items-center gap-4">
-                <!-- Floating Notes Toggle -->
-                <button id="floatingNotesToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle floating notes">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                    </svg>
-                </button>
+                    <!-- Focus Toggle -->
+                    <button id="focusToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle focus mode">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                        </svg>
+                    </button>
 
-                <!-- Focus Toggle -->
-                <button id="focusToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle focus mode">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-                    </svg>
-                </button>
+                    <!-- Markdown Toggle -->
+                    <button id="markdownToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle preview">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
 
-                <!-- Markdown Toggle -->
-                <button id="markdownToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle preview">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                    </svg>
-                </button>
-
-                <!-- Auto-save indicator -->
-                <div class="flex items-center gap-2 text-xs text-gray-500" title="Auto-saved">
-                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                    </svg>
+                    <!-- Auto-save indicator -->
+                    <div class="flex items-center gap-2 text-xs text-gray-500" title="Auto-saved">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
+
+            <!-- Right Arrow -->
+            <button id="scrollRightBtn" class="absolute right-0 z-10 h-full px-2 bg-gradient-to-l from-black/80 to-transparent hidden items-center justify-center text-neutral-400 hover:text-white transition-opacity">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
         </div>
 
         <!-- Editor/Preview Container -->
@@ -1396,6 +1414,63 @@
              // because on load we calculate (Now - startTime).
              // But let's be safe.
         });
+
+        // Scrollable Top Bar Logic
+        const scrollContainer = document.getElementById('counterBarScroll');
+        const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+        const scrollRightBtn = document.getElementById('scrollRightBtn');
+
+        function updateScrollButtons() {
+            if (!scrollContainer) return;
+
+            // Tolerance to handle sub-pixel rendering differences
+            const tolerance = 1;
+            const isOverflowing = scrollContainer.scrollWidth > scrollContainer.clientWidth + tolerance;
+            const canScrollLeft = scrollContainer.scrollLeft > 0;
+            const canScrollRight = scrollContainer.scrollLeft < scrollContainer.scrollWidth - scrollContainer.clientWidth - tolerance;
+
+            if (isOverflowing) {
+                if (canScrollLeft) {
+                    scrollLeftBtn.classList.remove('hidden');
+                    scrollLeftBtn.classList.add('flex');
+                } else {
+                    scrollLeftBtn.classList.add('hidden');
+                    scrollLeftBtn.classList.remove('flex');
+                }
+
+                if (canScrollRight) {
+                    scrollRightBtn.classList.remove('hidden');
+                    scrollRightBtn.classList.add('flex');
+                } else {
+                    scrollRightBtn.classList.add('hidden');
+                    scrollRightBtn.classList.remove('flex');
+                }
+            } else {
+                scrollLeftBtn.classList.add('hidden');
+                scrollLeftBtn.classList.remove('flex');
+                scrollRightBtn.classList.add('hidden');
+                scrollRightBtn.classList.remove('flex');
+            }
+        }
+
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', updateScrollButtons);
+            window.addEventListener('resize', updateScrollButtons);
+
+            // Initial check
+            updateScrollButtons();
+
+            // Also check after a short delay in case font loading changes widths
+            setTimeout(updateScrollButtons, 500);
+
+            scrollLeftBtn.addEventListener('click', () => {
+                scrollContainer.scrollBy({ left: -200, behavior: 'smooth' });
+            });
+
+            scrollRightBtn.addEventListener('click', () => {
+                scrollContainer.scrollBy({ left: 200, behavior: 'smooth' });
+            });
+        }
     </script>
 </body>
 </html>
