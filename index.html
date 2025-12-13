@@ -106,6 +106,16 @@
             margin: 2em 0;
         }
 
+        /* Floating Notes Panel Transition */
+        #floatingNotesPanel {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #floatingNotesPanel.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -298,6 +308,14 @@
         body.focus-mode #counterBar:hover {
             opacity: 1;
         }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-[#0a0a0a] to-black min-h-screen flex items-center justify-center p-4 md:p-8 selection:bg-indigo-500/30 text-gray-200">
@@ -377,6 +395,13 @@
             </div>
 
             <div class="flex items-center gap-4">
+                <!-- Floating Notes Toggle -->
+                <button id="floatingNotesToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle floating notes">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                    </svg>
+                </button>
+
                 <!-- Focus Toggle -->
                 <button id="focusToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle focus mode">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -414,6 +439,19 @@
 
             <!-- Markdown Preview -->
             <div id="markdownPreview" class="absolute inset-0 w-full h-full bg-transparent text-gray-100 px-8 py-6 text-base md:text-lg leading-relaxed hidden">
+            </div>
+
+            <!-- Floating Notes Panel -->
+            <div id="floatingNotesPanel" class="absolute top-6 right-6 w-72 bottom-6 z-20 pointer-events-none flex flex-col gap-3 opacity-0 translate-x-4 hidden">
+                <div class="flex items-center justify-between pointer-events-auto bg-neutral-900/80 backdrop-blur-md p-3 rounded-xl border border-white/10 shadow-lg">
+                    <span class="text-xs font-semibold text-gray-400 pl-1 uppercase tracking-wider">Scratchpad</span>
+                    <button id="addNoteBtn" class="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Add note">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    </button>
+                </div>
+                <div id="notesList" class="flex-1 overflow-y-auto pointer-events-auto space-y-3 pr-1 pb-2">
+                    <!-- Notes rendered here -->
+                </div>
             </div>
         </div>
     </div>
@@ -487,6 +525,140 @@
     </div>
 
     <script>
+        // Floating Notes Management
+        class FloatingNotesManager {
+            constructor() {
+                this.notes = [];
+                this.isVisible = false;
+                this.loadNotes();
+                this.init();
+            }
+
+            init() {
+                const toggleBtn = document.getElementById('floatingNotesToggle');
+                const addBtn = document.getElementById('addNoteBtn');
+                const panel = document.getElementById('floatingNotesPanel');
+
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', () => this.toggleVisibility());
+                }
+
+                if (addBtn) {
+                    addBtn.addEventListener('click', () => this.createNote());
+                }
+
+                this.renderNotes();
+
+                // Restore visibility state
+                const savedVisibility = localStorage.getItem('floatingNotesVisible');
+                if (savedVisibility === 'true') {
+                    this.toggleVisibility(true);
+                }
+            }
+
+            loadNotes() {
+                const savedNotes = localStorage.getItem('floatingNotes');
+                if (savedNotes) {
+                    this.notes = JSON.parse(savedNotes);
+                }
+            }
+
+            saveNotes() {
+                localStorage.setItem('floatingNotes', JSON.stringify(this.notes));
+            }
+
+            toggleVisibility(forceShow = null) {
+                const panel = document.getElementById('floatingNotesPanel');
+                const toggleBtn = document.getElementById('floatingNotesToggle');
+
+                if (forceShow !== null) {
+                    this.isVisible = forceShow;
+                } else {
+                    this.isVisible = !this.isVisible;
+                }
+
+                localStorage.setItem('floatingNotesVisible', this.isVisible);
+
+                if (this.isVisible) {
+                    panel.classList.remove('hidden');
+                    // Small delay to allow display:block to apply before transition
+                    requestAnimationFrame(() => {
+                        panel.classList.add('visible');
+                    });
+                    toggleBtn.classList.add('text-white', 'bg-white/5');
+                } else {
+                    panel.classList.remove('visible');
+                    setTimeout(() => {
+                        if (!this.isVisible) panel.classList.add('hidden');
+                    }, 300); // Match transition duration
+                    toggleBtn.classList.remove('text-white', 'bg-white/5');
+                }
+            }
+
+            createNote() {
+                const newNote = {
+                    id: Date.now().toString(),
+                    content: '',
+                    color: 'bg-neutral-800/90' // Default color
+                };
+                this.notes.unshift(newNote); // Add to top
+                this.saveNotes();
+                this.renderNotes();
+
+                // Focus the new note
+                setTimeout(() => {
+                    const textarea = document.querySelector(`textarea[data-note-id="${newNote.id}"]`);
+                    if (textarea) textarea.focus();
+                }, 50);
+            }
+
+            deleteNote(noteId) {
+                this.notes = this.notes.filter(n => n.id !== noteId);
+                this.saveNotes();
+                this.renderNotes();
+            }
+
+            updateNote(noteId, content) {
+                const note = this.notes.find(n => n.id === noteId);
+                if (note) {
+                    note.content = content;
+                    this.saveNotes();
+                }
+            }
+
+            renderNotes() {
+                const list = document.getElementById('notesList');
+                list.innerHTML = '';
+
+                this.notes.forEach(note => {
+                    const noteEl = document.createElement('div');
+                    noteEl.className = `group relative ${note.color} backdrop-blur-sm p-3 rounded-xl border border-white/5 shadow-lg transition-all hover:border-white/20`;
+
+                    const textarea = document.createElement('textarea');
+                    textarea.className = 'w-full h-24 bg-transparent text-sm text-gray-300 placeholder-gray-600 resize-none outline-none font-mono leading-relaxed scrollbar-hide';
+                    textarea.setAttribute('data-note-id', note.id);
+                    textarea.placeholder = 'Type a note...';
+                    textarea.value = note.content; // Safe assignment preventing XSS
+
+                    textarea.addEventListener('input', (e) => {
+                        this.updateNote(note.id, e.target.value);
+                    });
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-gray-500 hover:text-red-400 transition-all duration-200';
+                    deleteBtn.title = 'Delete note';
+                    deleteBtn.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                    deleteBtn.addEventListener('click', () => this.deleteNote(note.id));
+
+                    noteEl.appendChild(textarea);
+                    noteEl.appendChild(deleteBtn);
+                    list.appendChild(noteEl);
+                });
+            }
+        }
+
+        window.floatingNotesManager = new FloatingNotesManager();
+
         // Tab Management
         class TabManager {
             constructor() {
