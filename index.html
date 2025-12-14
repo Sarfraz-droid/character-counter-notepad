@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimalist Notepad</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Quill CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- Quill JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,6 +108,66 @@
             border-top: 1px solid #4b5563;
             margin: 2em 0;
         }
+
+        /* Quill Overrides for Dark Theme */
+        .ql-container.ql-snow {
+            border: none !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 1rem; /* base */
+        }
+
+        @media (min-width: 768px) {
+            .ql-container.ql-snow {
+                font-size: 1.125rem; /* lg */
+            }
+        }
+
+        .ql-editor {
+            padding: 1.5rem 2rem !important; /* px-8 py-6 */
+            color: #f3f4f6 !important; /* gray-100 */
+            line-height: 1.625 !important; /* leading-relaxed */
+            caret-color: #e5e7eb; /* gray-200 */
+        }
+
+        .ql-editor.ql-blank::before {
+            color: #525252 !important; /* neutral-600 */
+            font-style: normal !important;
+            left: 2rem !important;
+            right: 2rem !important;
+        }
+
+        /* Hide scrollbar in editor if needed, but usually we want it */
+        .ql-editor::-webkit-scrollbar {
+            width: 8px;
+        }
+        .ql-editor::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        .ql-editor::-webkit-scrollbar-thumb {
+            background: #525252;
+        }
+        .ql-editor::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        /* Highlight style in Quill */
+        .ql-snow .ql-editor mark {
+            background-color: #ca8a04;
+            color: #fff;
+            padding: 0 0.2em;
+            border-radius: 0.2em;
+        }
+
+        /* Tooltip style in Quill */
+        .ql-snow .ql-editor .note-tooltip {
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #fbbf24;
+            cursor: help;
+            position: relative;
+        }
+
+        /* Tooltip hover effect is handled by CSS on .note-tooltip */
 
         /* Floating Notes Panel Transition */
         #floatingNotesPanel {
@@ -499,18 +562,11 @@
 
         <!-- Editor/Preview Container -->
         <div class="flex-1 relative overflow-hidden group">
-            <!-- Textarea -->
-            <textarea
-                id="notepad"
-                placeholder="Start typing..."
-                autofocus
-                class="absolute inset-0 w-full h-full bg-transparent text-gray-100 placeholder-neutral-600 px-8 py-6 text-base md:text-lg leading-relaxed resize-none outline-none focus:ring-0 font-mono transition-colors duration-300"
-                style="font-family: 'JetBrains Mono', monospace;"
-            ></textarea>
+            <!-- Quill Editor Container -->
+            <div id="editor-container" class="absolute inset-0 w-full h-full bg-transparent"></div>
 
-            <!-- Markdown Preview -->
-            <div id="markdownPreview" class="absolute inset-0 w-full h-full bg-transparent text-gray-100 px-8 py-6 text-base md:text-lg leading-relaxed hidden">
-            </div>
+            <!-- Read Only Overlay (for Read Mode) -->
+            <div id="readOnlyOverlay" class="absolute inset-0 z-10 hidden bg-transparent"></div>
 
             <!-- Floating Notes Panel -->
             <div id="floatingNotesPanel" class="absolute top-6 right-6 w-72 bottom-6 z-20 pointer-events-none flex flex-col gap-3 opacity-0 translate-x-4 hidden">
@@ -534,23 +590,43 @@
     </div>
 
     <!-- Formatting Menu -->
-    <div class="dropdown-menu" id="formatMenu" style="width: 200px;">
+    <div class="dropdown-menu" id="formatMenu" style="width: 220px;">
         <div class="dropdown-item" id="btnFormatBold">
             <div class="flex items-center gap-2">
-                <span class="font-bold">B</span>
+                <span class="font-bold w-5 text-center">B</span>
                 <span>Bold</span>
             </div>
             <span class="text-xs text-neutral-500">Ctrl+B</span>
         </div>
         <div class="dropdown-item" id="btnFormatHighlight">
              <div class="flex items-center gap-2">
-                <span class="bg-yellow-600 text-white text-xs px-1 rounded">H</span>
+                <div class="w-5 flex justify-center"><span class="bg-yellow-600 text-white text-xs px-1 rounded">H</span></div>
                 <span>Highlight</span>
             </div>
         </div>
+        <div class="dropdown-item" id="btnFormatBullet">
+             <div class="flex items-center gap-2">
+                <div class="w-5 flex justify-center">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </div>
+                <span>Bullet List</span>
+            </div>
+            <span class="text-xs text-neutral-500">* space</span>
+        </div>
+        <div class="dropdown-item" id="btnFormatOrdered">
+             <div class="flex items-center gap-2">
+                <div class="w-5 flex justify-center">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h12M7 12h12M7 17h12M3 7h1v1H3V7zm0 5h1v1H3v-1zm0 5h1v1H3v-1z"></path></svg>
+                </div>
+                <span>Numbered List</span>
+            </div>
+            <span class="text-xs text-neutral-500">1. space</span>
+        </div>
         <div class="dropdown-item" id="btnFormatMessage">
              <div class="flex items-center gap-2">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                <div class="w-5 flex justify-center">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                </div>
                 <span>Add Message</span>
             </div>
         </div>
@@ -882,7 +958,8 @@
             saveCurrentTabContent() {
                 const activeTab = this.tabs.find(t => t.id === this.activeTabId);
                 if (activeTab) {
-                    activeTab.content = notepad.value;
+                    // Save HTML content
+                    activeTab.content = quill.root.innerHTML;
                     this.saveTabs();
                 }
             }
@@ -890,7 +967,8 @@
             loadActiveTab() {
                 const activeTab = this.tabs.find(t => t.id === this.activeTabId);
                 if (activeTab) {
-                    notepad.value = activeTab.content;
+                    // Load HTML content
+                    quill.clipboard.dangerouslyPasteHTML(activeTab.content || '');
 
                     const currentTabName = document.getElementById('currentTabName');
                     if (currentTabName) {
@@ -898,7 +976,6 @@
                     }
 
                     updateCounters(this);
-                    updateMarkdownPreview();
                 }
             }
 
@@ -990,9 +1067,10 @@
         }
 
         // Initialize
-        const notepad = document.getElementById('notepad');
-        const markdownPreview = document.getElementById('markdownPreview');
+        // const notepad = document.getElementById('notepad'); // Removed
+        const markdownPreview = document.getElementById('markdownPreview'); // Can be removed later
         const markdownToggle = document.getElementById('markdownToggle');
+        const readOnlyOverlay = document.getElementById('readOnlyOverlay');
         const charCount = document.getElementById('charCount');
         const wordCount = document.getElementById('wordCount');
         const tabDropdownTrigger = document.getElementById('tabDropdownTrigger');
@@ -1013,6 +1091,8 @@
         const formatMenu = document.getElementById('formatMenu');
         const btnFormatBold = document.getElementById('btnFormatBold');
         const btnFormatHighlight = document.getElementById('btnFormatHighlight');
+        const btnFormatBullet = document.getElementById('btnFormatBullet');
+        const btnFormatOrdered = document.getElementById('btnFormatOrdered');
         const btnFormatMessage = document.getElementById('btnFormatMessage');
         const messageModal = document.getElementById('messageModal');
         const messageInput = document.getElementById('messageInput');
@@ -1026,6 +1106,71 @@
         let currentRenameTabId = null;
         let confettiTriggered = false; // To prevent continuous confetti
         let currentMessageSelection = null;
+
+        // Register Custom Blots
+        const Inline = Quill.import('blots/inline');
+
+        // Tooltip Blot
+        class TooltipBlot extends Inline {
+            static create(value) {
+                let node = super.create();
+                node.setAttribute('data-msg', value);
+                node.setAttribute('title', value);
+                node.setAttribute('class', 'note-tooltip');
+                return node;
+            }
+            static formats(node) {
+                return node.getAttribute('data-msg');
+            }
+        }
+        TooltipBlot.blotName = 'tooltip';
+        TooltipBlot.tagName = 'span';
+        Quill.register(TooltipBlot);
+
+        // Highlight Blot (using <mark>)
+        class HighlightBlot extends Inline {
+             static create() {
+                 return super.create();
+             }
+        }
+        HighlightBlot.blotName = 'highlight';
+        HighlightBlot.tagName = 'mark';
+        Quill.register(HighlightBlot);
+
+        // Initialize Quill with Auto-List Keyboard Bindings
+        const quill = new Quill('#editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: false, // Headless
+                keyboard: {
+                    bindings: {
+                        // Auto-list: * space -> Bullet List
+                        'list autofill': {
+                            key: ' ',
+                            collapsed: true,
+                            format: { list: false },
+                            prefix: /^\s*(\*|-)\s$/,
+                            handler: function(range, context) {
+                                this.quill.formatLine(range.index, 1, 'list', 'bullet');
+                                this.quill.deleteText(range.index - context.prefix.length, context.prefix.length);
+                            }
+                        },
+                        // Auto-list: 1. space -> Ordered List
+                        'list autofill ordered': {
+                            key: ' ',
+                            collapsed: true,
+                            format: { list: false },
+                            prefix: /^\s*\d+\.\s$/,
+                            handler: function(range, context) {
+                                this.quill.formatLine(range.index, 1, 'list', 'ordered');
+                                this.quill.deleteText(range.index - context.prefix.length, context.prefix.length);
+                            }
+                        }
+                    }
+                }
+            },
+            placeholder: 'Start typing...'
+        });
 
         const quotes = [
             "The secret of getting ahead is getting started.",
@@ -1052,7 +1197,8 @@
 
         function setRandomPlaceholder() {
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            notepad.setAttribute('placeholder', randomQuote);
+            // Quill uses CSS attr for placeholder
+            quill.root.setAttribute('data-placeholder', randomQuote);
         }
 
         const tabManager = new TabManager();
@@ -1207,7 +1353,10 @@
 
         // Update counters
         function updateCounters(manager = null) {
-            const text = notepad.value;
+            const text = quill.getText(); // Get plain text
+            // Quill usually adds a newline at the end.
+            const chars = Math.max(0, text.length - 1); // Subtract trailing newline
+
             const tm = manager || (typeof tabManager !== 'undefined' ? tabManager : null);
             const activeTab = tm ? tm.getActiveTab() : null;
             const charProgressBar = document.getElementById('charProgressBar');
@@ -1215,8 +1364,6 @@
             const wordProgressBar = document.getElementById('wordProgressBar');
             const wordProgress = document.getElementById('wordProgress');
 
-            // Character count
-            const chars = text.length;
             let charGoalMet = false;
 
             if (activeTab && activeTab.charGoal) {
@@ -1292,16 +1439,7 @@
                 });
                 confettiTriggered = true;
             } else if (!charGoalMet && !wordGoalMet) {
-                // Reset confetti if below goals (so it can trigger again if you delete and type again?)
-                // Or maybe only reset if BOTH are false, effectively meaning you dropped below both goals.
                 confettiTriggered = false;
-            }
-        }
-
-        // Update markdown preview
-        function updateMarkdownPreview() {
-            if (typeof marked !== 'undefined') {
-                markdownPreview.innerHTML = marked.parse(notepad.value || '*No content to preview*');
             }
         }
 
@@ -1318,127 +1456,55 @@
             }, 1000);
         }
 
-        // Toggle markdown preview
+        // Toggle Read Mode (formerly Markdown Preview)
         markdownToggle.addEventListener('click', () => {
             isPreviewMode = !isPreviewMode;
             if (isPreviewMode) {
-                updateMarkdownPreview();
-                notepad.classList.add('hidden');
-                markdownPreview.classList.remove('hidden');
+                quill.disable();
+                if (readOnlyOverlay) readOnlyOverlay.classList.remove('hidden');
+                markdownToggle.classList.add('text-white');
             } else {
-                notepad.classList.remove('hidden');
-                markdownPreview.classList.add('hidden');
+                quill.enable();
+                if (readOnlyOverlay) readOnlyOverlay.classList.add('hidden');
+                markdownToggle.classList.remove('text-white');
             }
         });
 
         // Update counters on input
-        notepad.addEventListener('input', () => {
+        quill.on('text-change', () => {
             updateCounters();
             tabManager.saveCurrentTabContent();
             showSavingIndicator();
-            if (isPreviewMode) {
-                updateMarkdownPreview();
-            }
         });
 
-        // Handle tab key and auto-list
-        notepad.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = notepad.selectionStart;
-                const end = notepad.selectionEnd;
-
-                // Insert tab character
-                notepad.value = notepad.value.substring(0, start) + '\t' + notepad.value.substring(end);
-
-                // Move cursor after tab
-                notepad.selectionStart = notepad.selectionEnd = start + 1;
-
-                // Trigger input event to save and update counters
-                notepad.dispatchEvent(new Event('input'));
-            } else if (e.key === 'Enter') {
-                const start = notepad.selectionStart;
-                const end = notepad.selectionEnd;
-                const value = notepad.value;
-
-                // Get the current line
-                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
-                const lineEnd = value.indexOf('\n', start);
-                const currentLine = value.substring(lineStart, lineEnd === -1 ? value.length : lineEnd);
-
-                // Regex for bullet points (*, -, +) or numbers (1., 2.)
-                // Captures: 1=indent, 2=marker
-                const match = currentLine.match(/^(\s*)([*+-]|\d+\.)\s/);
-
-                if (match) {
-                    const indent = match[1];
-                    const marker = match[2];
-
-                    // If the line is empty (just the marker), remove the marker
-                    if (currentLine.trim() === marker) {
-                        e.preventDefault();
-                        // Remove the marker and indent
-                        notepad.value = value.substring(0, lineStart) + value.substring(lineEnd === -1 ? value.length : lineEnd);
-                        notepad.selectionStart = notepad.selectionEnd = lineStart;
-                        notepad.dispatchEvent(new Event('input'));
-                        return;
-                    }
-
-                    e.preventDefault();
-
-                    let nextMarker = marker;
-                    // Auto-increment number
-                    if (/^\d+\.$/.test(marker)) {
-                        const num = parseInt(marker);
-                        nextMarker = (num + 1) + '.';
-                    }
-
-                    const insertion = `\n${indent}${nextMarker} `;
-                    notepad.value = value.substring(0, start) + insertion + value.substring(end);
-                    notepad.selectionStart = notepad.selectionEnd = start + insertion.length;
-
-                    // Trigger input event
-                    notepad.dispatchEvent(new Event('input'));
-                }
-            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
-                e.preventDefault();
-                toggleBold();
-            }
-        });
-
-        // Formatting Functions
-        function insertFormatting(startTag, endTag) {
-            const start = notepad.selectionStart;
-            const end = notepad.selectionEnd;
-            const value = notepad.value;
-            const selectedText = value.substring(start, end);
-
-            notepad.value = value.substring(0, start) + startTag + selectedText + endTag + value.substring(end);
-
-            notepad.selectionStart = start + startTag.length;
-            notepad.selectionEnd = end + startTag.length;
-
-            notepad.focus();
-            notepad.dispatchEvent(new Event('input'));
-        }
-
+        // Formatting Functions (Quill)
         function toggleBold() {
-            insertFormatting('**', '**');
+            const currentFormat = quill.getFormat();
+            quill.format('bold', !currentFormat.bold);
         }
 
         function toggleHighlight() {
-             insertFormatting('<mark>', '</mark>');
+            const currentFormat = quill.getFormat();
+            quill.format('highlight', !currentFormat.highlight);
+        }
+
+        function toggleList(type) {
+            const currentFormat = quill.getFormat();
+            if (currentFormat.list === type) {
+                quill.format('list', false);
+            } else {
+                quill.format('list', type);
+            }
         }
 
         function openMessageModal() {
-            if (notepad.selectionStart === notepad.selectionEnd) {
+            const range = quill.getSelection();
+            if (!range || range.length === 0) {
                 alert("Please select text to add a message to.");
                 return;
             }
-            currentMessageSelection = {
-                start: notepad.selectionStart,
-                end: notepad.selectionEnd
-            };
+
+            currentMessageSelection = range;
             messageInput.value = '';
             messageModal.classList.add('active');
             setTimeout(() => messageInput.focus(), 100);
@@ -1454,15 +1520,7 @@
         confirmMessageBtn.addEventListener('click', () => {
              const msg = messageInput.value.trim();
              if (msg && currentMessageSelection) {
-                 const value = notepad.value;
-                 const selectedText = value.substring(currentMessageSelection.start, currentMessageSelection.end);
-                 const escapedMsg = msg.replace(/"/g, '&quot;');
-                 const replacement = `<span class="note-tooltip" data-msg="${escapedMsg}">${selectedText}</span>`;
-
-                 notepad.value = value.substring(0, currentMessageSelection.start) + replacement + value.substring(currentMessageSelection.end);
-                 notepad.selectionStart = currentMessageSelection.start + replacement.length;
-                 notepad.selectionEnd = notepad.selectionStart;
-                 notepad.dispatchEvent(new Event('input'));
+                 quill.formatText(currentMessageSelection.index, currentMessageSelection.length, 'tooltip', msg);
              }
              messageModal.classList.remove('active');
              currentMessageSelection = null;
@@ -1519,18 +1577,28 @@
             closeFormatMenu();
         });
 
+        btnFormatBullet.addEventListener('click', () => {
+            toggleList('bullet');
+            closeFormatMenu();
+        });
+
+        btnFormatOrdered.addEventListener('click', () => {
+            toggleList('ordered');
+            closeFormatMenu();
+        });
+
         btnFormatMessage.addEventListener('click', () => {
             openMessageModal();
             // closeFormatMenu is called inside openMessageModal
         });
 
         // Add smooth focus effect
-        notepad.addEventListener('focus', () => {
-            notepad.parentElement.parentElement.classList.add('ring-1', 'ring-gray-700');
-        });
-
-        notepad.addEventListener('blur', () => {
-            notepad.parentElement.parentElement.classList.remove('ring-1', 'ring-gray-700');
+        quill.on('selection-change', (range) => {
+            if (range) {
+                 document.getElementById('editor-container').parentElement.parentElement.classList.add('ring-1', 'ring-gray-700');
+            } else {
+                 document.getElementById('editor-container').parentElement.parentElement.classList.remove('ring-1', 'ring-gray-700');
+            }
         });
 
         // Save content before closing/refreshing
