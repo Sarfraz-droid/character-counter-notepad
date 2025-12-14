@@ -319,6 +319,49 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* Highlight & Tooltip Styles */
+        mark {
+            background-color: #ca8a04; /* yellow-600 - darker for better contrast in dark mode? or maybe just yellow-500 */
+            color: #fff;
+            padding: 0 0.2em;
+            border-radius: 0.2em;
+        }
+
+        /* In preview mode, mark might need better contrast depending on theme.
+           Let's use a amber-500/30 background for a subtler highlight that fits dark mode */
+        #markdownPreview mark {
+            background-color: rgba(245, 158, 11, 0.3); /* amber-500 with opacity */
+            color: #fcd34d; /* amber-300 */
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .note-tooltip {
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #fbbf24;
+            cursor: help;
+            position: relative;
+        }
+
+        .note-tooltip:hover::after {
+            content: attr(data-msg);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-5px);
+            background-color: #171717;
+            border: 1px solid #404040;
+            color: #e5e5e5;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            z-index: 50;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            animation: slideIn 0.2s ease forwards;
+        }
     </style>
 </head>
 <body class="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-[#0a0a0a] to-black min-h-screen flex items-center justify-center p-4 md:p-8 selection:bg-indigo-500/30 text-gray-200">
@@ -422,6 +465,13 @@
                         </svg>
                     </button>
 
+                    <!-- Formatting Menu Toggle -->
+                    <button id="formatMenuToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Formatting">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+
                     <!-- Markdown Toggle -->
                     <button id="markdownToggle" class="flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 px-3 py-1.5 rounded hover:bg-white/5" title="Toggle preview">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -483,6 +533,29 @@
         <!-- Tabs will be inserted here -->
     </div>
 
+    <!-- Formatting Menu -->
+    <div class="dropdown-menu" id="formatMenu" style="width: 200px;">
+        <div class="dropdown-item" id="btnFormatBold">
+            <div class="flex items-center gap-2">
+                <span class="font-bold">B</span>
+                <span>Bold</span>
+            </div>
+            <span class="text-xs text-neutral-500">Ctrl+B</span>
+        </div>
+        <div class="dropdown-item" id="btnFormatHighlight">
+             <div class="flex items-center gap-2">
+                <span class="bg-yellow-600 text-white text-xs px-1 rounded">H</span>
+                <span>Highlight</span>
+            </div>
+        </div>
+        <div class="dropdown-item" id="btnFormatMessage">
+             <div class="flex items-center gap-2">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                <span>Add Message</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Rename Modal -->
     <div id="renameModal" class="modal">
         <div class="modal-content bg-neutral-900 rounded-xl p-6 w-full max-w-md border border-neutral-800 shadow-2xl">
@@ -499,6 +572,27 @@
                 </button>
                 <button id="confirmRenameBtn" class="px-4 py-2 bg-neutral-100 hover:bg-white text-neutral-900 font-semibold rounded-lg transition-colors">
                     Rename
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content bg-neutral-900 rounded-xl p-6 w-full max-w-md border border-neutral-800 shadow-2xl">
+            <h3 class="text-xl font-semibold text-white mb-4">Add Message to Selection</h3>
+            <input
+                type="text"
+                id="messageInput"
+                class="w-full bg-neutral-950 text-neutral-200 px-4 py-3 rounded-lg border border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-700 mb-4 placeholder-neutral-600"
+                placeholder="Enter message..."
+            />
+            <div class="flex justify-end gap-3">
+                <button id="cancelMessageBtn" class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-lg transition-colors border border-neutral-700">
+                    Cancel
+                </button>
+                <button id="confirmMessageBtn" class="px-4 py-2 bg-neutral-100 hover:bg-white text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Add Message
                 </button>
             </div>
         </div>
@@ -915,6 +1009,15 @@
         const confirmGoalBtn = document.getElementById('confirmGoalBtn');
         const cancelGoalBtn = document.getElementById('cancelGoalBtn');
         const focusToggle = document.getElementById('focusToggle');
+        const formatMenuToggle = document.getElementById('formatMenuToggle');
+        const formatMenu = document.getElementById('formatMenu');
+        const btnFormatBold = document.getElementById('btnFormatBold');
+        const btnFormatHighlight = document.getElementById('btnFormatHighlight');
+        const btnFormatMessage = document.getElementById('btnFormatMessage');
+        const messageModal = document.getElementById('messageModal');
+        const messageInput = document.getElementById('messageInput');
+        const confirmMessageBtn = document.getElementById('confirmMessageBtn');
+        const cancelMessageBtn = document.getElementById('cancelMessageBtn');
         const appContainer = document.getElementById('appContainer');
         const counterBar = document.getElementById('counterBar');
         let saveTimeout;
@@ -922,6 +1025,7 @@
         let isFocusMode = false;
         let currentRenameTabId = null;
         let confettiTriggered = false; // To prevent continuous confetti
+        let currentMessageSelection = null;
 
         const quotes = [
             "The secret of getting ahead is getting started.",
@@ -988,9 +1092,10 @@
             if (chevron) chevron.style.transform = 'rotate(0deg)';
         }
 
-        // Close dropdown when clicking backdrop
+        // Close dropdowns when clicking backdrop
         tabDropdownBackdrop.addEventListener('click', (e) => {
             closeDropdown();
+            closeFormatMenu();
         });
 
         // Handle resize to reposition if open
@@ -999,6 +1104,11 @@
                  const rect = tabDropdownTrigger.getBoundingClientRect();
                  dropdownMenu.style.top = `${rect.bottom + 8}px`;
                  dropdownMenu.style.left = `${rect.left}px`;
+            }
+            if (formatMenu.classList.contains('active')) {
+                 const rect = formatMenuToggle.getBoundingClientRect();
+                 formatMenu.style.top = `${rect.bottom + 8}px`;
+                 formatMenu.style.left = `${rect.left}px`;
             }
         });
 
@@ -1040,8 +1150,15 @@
                 if (goalModal.classList.contains('active')) {
                     goalModal.classList.remove('active');
                 }
+                if (messageModal.classList.contains('active')) {
+                    messageModal.classList.remove('active');
+                    currentMessageSelection = null;
+                }
                 if (dropdownMenu.classList.contains('active')) {
                     closeDropdown();
+                }
+                if (formatMenu.classList.contains('active')) {
+                    closeFormatMenu();
                 }
             }
         });
@@ -1224,7 +1341,7 @@
             }
         });
 
-        // Handle tab key
+        // Handle tab key and auto-list
         notepad.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
                 e.preventDefault();
@@ -1239,7 +1356,172 @@
 
                 // Trigger input event to save and update counters
                 notepad.dispatchEvent(new Event('input'));
+            } else if (e.key === 'Enter') {
+                const start = notepad.selectionStart;
+                const end = notepad.selectionEnd;
+                const value = notepad.value;
+
+                // Get the current line
+                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                const lineEnd = value.indexOf('\n', start);
+                const currentLine = value.substring(lineStart, lineEnd === -1 ? value.length : lineEnd);
+
+                // Regex for bullet points (*, -, +) or numbers (1., 2.)
+                // Captures: 1=indent, 2=marker
+                const match = currentLine.match(/^(\s*)([*+-]|\d+\.)\s/);
+
+                if (match) {
+                    const indent = match[1];
+                    const marker = match[2];
+
+                    // If the line is empty (just the marker), remove the marker
+                    if (currentLine.trim() === marker) {
+                        e.preventDefault();
+                        // Remove the marker and indent
+                        notepad.value = value.substring(0, lineStart) + value.substring(lineEnd === -1 ? value.length : lineEnd);
+                        notepad.selectionStart = notepad.selectionEnd = lineStart;
+                        notepad.dispatchEvent(new Event('input'));
+                        return;
+                    }
+
+                    e.preventDefault();
+
+                    let nextMarker = marker;
+                    // Auto-increment number
+                    if (/^\d+\.$/.test(marker)) {
+                        const num = parseInt(marker);
+                        nextMarker = (num + 1) + '.';
+                    }
+
+                    const insertion = `\n${indent}${nextMarker} `;
+                    notepad.value = value.substring(0, start) + insertion + value.substring(end);
+                    notepad.selectionStart = notepad.selectionEnd = start + insertion.length;
+
+                    // Trigger input event
+                    notepad.dispatchEvent(new Event('input'));
+                }
+            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+                e.preventDefault();
+                toggleBold();
             }
+        });
+
+        // Formatting Functions
+        function insertFormatting(startTag, endTag) {
+            const start = notepad.selectionStart;
+            const end = notepad.selectionEnd;
+            const value = notepad.value;
+            const selectedText = value.substring(start, end);
+
+            notepad.value = value.substring(0, start) + startTag + selectedText + endTag + value.substring(end);
+
+            notepad.selectionStart = start + startTag.length;
+            notepad.selectionEnd = end + startTag.length;
+
+            notepad.focus();
+            notepad.dispatchEvent(new Event('input'));
+        }
+
+        function toggleBold() {
+            insertFormatting('**', '**');
+        }
+
+        function toggleHighlight() {
+             insertFormatting('<mark>', '</mark>');
+        }
+
+        function openMessageModal() {
+            if (notepad.selectionStart === notepad.selectionEnd) {
+                alert("Please select text to add a message to.");
+                return;
+            }
+            currentMessageSelection = {
+                start: notepad.selectionStart,
+                end: notepad.selectionEnd
+            };
+            messageInput.value = '';
+            messageModal.classList.add('active');
+            setTimeout(() => messageInput.focus(), 100);
+
+            // Close format menu if open
+            if (formatMenu.classList.contains('active')) {
+                formatMenu.classList.remove('active');
+                tabDropdownBackdrop.classList.remove('active');
+            }
+        }
+
+        // Message Modal Listeners
+        confirmMessageBtn.addEventListener('click', () => {
+             const msg = messageInput.value.trim();
+             if (msg && currentMessageSelection) {
+                 const value = notepad.value;
+                 const selectedText = value.substring(currentMessageSelection.start, currentMessageSelection.end);
+                 const escapedMsg = msg.replace(/"/g, '&quot;');
+                 const replacement = `<span class="note-tooltip" data-msg="${escapedMsg}">${selectedText}</span>`;
+
+                 notepad.value = value.substring(0, currentMessageSelection.start) + replacement + value.substring(currentMessageSelection.end);
+                 notepad.selectionStart = currentMessageSelection.start + replacement.length;
+                 notepad.selectionEnd = notepad.selectionStart;
+                 notepad.dispatchEvent(new Event('input'));
+             }
+             messageModal.classList.remove('active');
+             currentMessageSelection = null;
+        });
+
+        cancelMessageBtn.addEventListener('click', () => {
+            messageModal.classList.remove('active');
+            currentMessageSelection = null;
+        });
+
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') confirmMessageBtn.click();
+        });
+
+        // Formatting Menu Logic
+        formatMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = formatMenu.classList.contains('active');
+            if (isActive) {
+                closeFormatMenu();
+            } else {
+                openFormatMenu();
+            }
+        });
+
+        function openFormatMenu() {
+            // Position
+            const rect = formatMenuToggle.getBoundingClientRect();
+            formatMenu.style.top = `${rect.bottom + 8}px`;
+            formatMenu.style.left = `${rect.left}px`; // Align left or adjust if too close to edge
+
+            // Check if it goes off screen
+            if (rect.left + 200 > window.innerWidth) {
+                 formatMenu.style.left = `${rect.right - 200}px`;
+            }
+
+            tabDropdownBackdrop.classList.add('active');
+            formatMenu.classList.add('active');
+        }
+
+        function closeFormatMenu() {
+            tabDropdownBackdrop.classList.remove('active');
+            formatMenu.classList.remove('active');
+        }
+
+        // Attach button listeners
+        btnFormatBold.addEventListener('click', () => {
+            toggleBold();
+            closeFormatMenu();
+        });
+
+        btnFormatHighlight.addEventListener('click', () => {
+            toggleHighlight();
+            closeFormatMenu();
+        });
+
+        btnFormatMessage.addEventListener('click', () => {
+            openMessageModal();
+            // closeFormatMenu is called inside openMessageModal
         });
 
         // Add smooth focus effect
